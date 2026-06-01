@@ -180,6 +180,16 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 </div>
 <div id="teams-view"></div>
 
+<!-- TEAMS PAGE INSIGHTS (global Top5 + curves) -->
+<div id="teams-insights-row" style="display:none;gap:14px;margin:14px 28px 0;flex-wrap:wrap;">
+  <div class="chart-card" id="teams-top5-growth" style="flex:1;min-width:240px;padding:16px 18px;"></div>
+  <div class="chart-card" id="teams-top5-decline" style="flex:1;min-width:240px;padding:16px 18px;"></div>
+  <div class="chart-card" style="flex:2;min-width:320px;padding:16px 18px;">
+    <h3>CURVAS DAS EQUIPAS (24 MESES)</h3>
+    <div class="chart-wrap"><canvas id="teams-compare-chart"></canvas></div>
+  </div>
+</div>
+
 <!-- AM GRID VIEW -->
 <div id="am-view">
   <div class="section-header" style="padding-bottom:16px">
@@ -193,10 +203,6 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       <div class="chart-wrap"><canvas id="team-chart"></canvas></div>
     </div>
     <div class="am-grid" id="am-grid"></div>
-    <div id="team-insights-row" style="display:none;gap:14px;margin-top:14px;flex-wrap:wrap;">
-      <div class="chart-card" id="team-top5-growth" style="flex:1;min-width:240px;padding:16px 18px;"></div>
-      <div class="chart-card" id="team-top5-decline" style="flex:1;min-width:240px;padding:16px 18px;"></div>
-    </div>
   </div>
 </div>
 
@@ -484,6 +490,7 @@ let currentPeriod = 'MTD';
 function showTeams() {
   document.getElementById('teams-view').style.display = 'grid';
   document.getElementById('teams-title').style.display = 'block';
+  document.getElementById('teams-insights-row').style.display = 'flex';
   document.getElementById('am-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('client-view').style.display = 'none';
@@ -491,6 +498,7 @@ function showTeams() {
   if (clientChart) { clientChart.destroy(); clientChart = null; }
   currentTeamIdx = -1; currentAmIdx = -1;
   window.scrollTo(0, 0);
+  renderTeamsInsights();
 }
 
 function showTeamView(idx) {
@@ -498,10 +506,10 @@ function showTeamView(idx) {
   const t = TEAMS[idx];
   document.getElementById('teams-view').style.display = 'none';
   document.getElementById('teams-title').style.display = 'none';
+  document.getElementById('teams-insights-row').style.display = 'none';
   document.getElementById('am-view').style.display = 'block';
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('client-view').style.display = 'none';
-  document.getElementById('team-insights-row').style.display = 'none';
   if (clientChart) { clientChart.destroy(); clientChart = null; }
   document.getElementById('breadcrumb').style.display = 'flex';
   document.getElementById('bc-team').textContent = 'Equipa ' + t.tl;
@@ -575,7 +583,6 @@ function showTeamView(idx) {
         drawSparkline(`amc-${idx}-${i}`, wrap, am.monthly, t.color);
       }
     });
-    renderTeamInsights(idx);
   }, 80);
 }
 
@@ -588,6 +595,9 @@ function showAMDetail(teamIdx, amIdx) {
   const t = TEAMS[teamIdx];
   const am = t.ams[amIdx];
 
+  document.getElementById('teams-view').style.display = 'none';
+  document.getElementById('teams-title').style.display = 'none';
+  document.getElementById('teams-insights-row').style.display = 'none';
   document.getElementById('am-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
   document.getElementById('client-view').style.display = 'none';
