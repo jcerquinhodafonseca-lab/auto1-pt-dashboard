@@ -203,6 +203,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       <div class="chart-wrap"><canvas id="team-chart"></canvas></div>
     </div>
     <div class="am-grid" id="am-grid"></div>
+    <div id="team-trend-table" style="margin-top:20px;"></div>
   </div>
 </div>
 
@@ -274,6 +275,27 @@ const TODAY = new Date('2026-06-01');
 const CI = {};
 
 // ── Utilities ──────────────────────────────────────────────────────────
+function linRegTrend(monthly) {
+  // Skip leading zeros (months before AM joined)
+  var start = 0;
+  while (start < monthly.length && monthly[start] === 0) start++;
+  var data = monthly.slice(start);
+  var n = data.length;
+  if (n < 2) return null;
+  var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  for (var i = 0; i < n; i++) { sumX += i; sumY += data[i]; sumXY += i * data[i]; sumX2 += i * i; }
+  var slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  var mean = sumY / n;
+  if (!mean) return null;
+  return Math.round((slope / mean) * 100 * 10) / 10; // % per month relative to mean
+}
+
+// Override pre-computed trends with linear regression values
+TEAMS.forEach(function(t) {
+  t.trend = linRegTrend(t.monthly);
+  t.ams.forEach(function(am) { am.trend = linRegTrend(am.monthly); });
+});
+
 function fmt(n) { return n === null || n === undefined ? '—' : n.toLocaleString('pt-PT'); }
 
 function trendBadge(p) {
@@ -524,7 +546,7 @@ function showTeamView(idx) {
   document.getElementById('av-stats').innerHTML = `
     <div class="stat-box"><div class="val">${fmt(t.total)}</div><div class="lbl">Unidades / 24 meses</div></div>
     <div class="stat-box"><div class="val">${fmt(last6)}</div><div class="lbl">Últimos 6 meses</div></div>
-    <div class="stat-box"><div class="val">${trendBadge(t.trend)}</div><div class="lbl">Tendência (Mar–Mai vs Dez–Fev)</div></div>
+    <div class="stat-box"><div class="val">${trendBadge(t.trend)}</div><div class="lbl">Tendência (reg. linear %/mês)</div></div>
     <div class="stat-box"><div class="val">${t.ams.filter(a=>!a.saida).length}</div><div class="lbl">AMs ativos</div></div>
   `;
 
@@ -583,6 +605,7 @@ function showTeamView(idx) {
         drawSparkline(`amc-${idx}-${i}`, wrap, am.monthly, t.color);
       }
     });
+    renderTeamTrendTable(idx);
   }, 80);
 }
 
@@ -748,6 +771,59 @@ function renderTeamInsights(teamIdx) {
   renderTop5TrendPanel('team-top5-decline', 'TOP 5 EM QUEDA', sorted.filter(function(a) { return a.trend < 0; }).slice(-5).reverse(), false);
   const row = document.getElementById('team-insights-row');
   if (row) row.style.display = 'flex';
+}
+
+function renderTeamTrendTable(teamIdx) {
+  const t = TEAMS[teamIdx];
+  const rows = t.ams
+    .map(function(am, i) { return { am: am, i: i }; })
+    .filter(function(r) { return r.am.total > 0; })
+    .sort(function(a, b) {
+      if (a.am.trend === null && b.am.trend === null) return 0;
+      if (a.am.trend === null) return 1;
+      if (b.am.trend === null) return -1;
+      return b.am.trend - a.am.trend;
+    });
+
+  var html = `
+    <h3 style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);">TABELA DE TENDÊNCIAS</h3>
+    <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="text-align:left;padding:7px 10px;font-weight:600;opacity:.65;">#</th>
+          <th style="text-align:left;padding:7px 10px;font-weight:600;opacity:.65;">Account Manager</th>
+          <th style="text-align:left;padding:7px 10px;font-weight:600;opacity:.65;">Nível</th>
+          <th style="text-align:right;padding:7px 10px;font-weight:600;opacity:.65;">Tendência</th>
+          <th style="text-align:right;padding:7px 10px;font-weight:600;opacity:.65;">Últ. 3m</th>
+          <th style="text-align:right;padding:7px 10px;font-weight:600;opacity:.65;">Total 24m</th>
+          <th style="text-align:left;padding:7px 10px;font-weight:600;opacity:.65;">Entrada</th>
+        </tr>
+      </thead>
+      <tbody>` +
+    rows.map(function(r, rank) {
+      var am = r.am;
+      var last3 = am.monthly.slice(21).reduce(function(a,b){return a+b;},0);
+      var tr = am.trend;
+      var trColor = tr === null ? 'var(--muted)' : tr > 2 ? '#2E7D32' : tr < -2 ? '#C62828' : 'var(--muted)';
+      var trArrow = tr === null ? '—' : tr > 2 ? '↑' : tr < -2 ? '↓' : '→';
+      var trVal = tr === null ? '—' : trArrow + ' ' + Math.abs(tr) + '%/mês';
+      var clickable = !am.saida ? 'cursor:pointer;' : 'opacity:.5;';
+      var onclick = !am.saida ? 'onclick="showAMDetail(' + teamIdx + ',' + r.i + ')"' : '';
+      return `<tr style="border-bottom:1px solid var(--border);${clickable}" ${onclick}>
+        <td style="padding:8px 10px;color:var(--muted);">${rank + 1}</td>
+        <td style="padding:8px 10px;font-weight:600;">${am.name}${am.saida ? ' <span style="font-size:10px;color:#C62828;">(saída)</span>' : ''}</td>
+        <td style="padding:8px 10px;">${levelBadge(am.level)}</td>
+        <td style="padding:8px 10px;text-align:right;font-weight:700;color:${trColor};">${trVal}</td>
+        <td style="padding:8px 10px;text-align:right;">${fmt(last3)}</td>
+        <td style="padding:8px 10px;text-align:right;">${fmt(am.total)}</td>
+        <td style="padding:8px 10px;color:var(--muted);">${am.joined || '—'}</td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table></div>`;
+
+  var el = document.getElementById('team-trend-table');
+  if (el) el.innerHTML = '<div class="chart-card" style="padding:16px 18px;">' + html + '</div>';
 }
 
 // ── Client Period ─────────────────────────────────────────────────────
