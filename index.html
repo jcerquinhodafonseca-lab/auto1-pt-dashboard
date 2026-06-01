@@ -529,7 +529,7 @@ function showTeamView(idx) {
   `;
 
   setTimeout(() => {
-    const wrap = document.querySelector('.chart-card .chart-wrap');
+    const wrap = document.querySelector('#am-view .chart-card .chart-wrap');
     const el = document.getElementById('team-chart');
     if (el && wrap) { el.width = wrap.clientWidth; el.height = wrap.clientHeight; }
     kill('team-chart');
