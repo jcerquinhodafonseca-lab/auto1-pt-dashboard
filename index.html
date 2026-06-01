@@ -1006,7 +1006,7 @@ setTimeout(() => {
     if (el && wrap) { el.width = wrap.clientWidth; el.height = wrap.clientHeight; }
     drawSparkline(`sp-${idx}`, wrap, t.monthly, t.color);
   });
-  // Show teams insights on initial load
+  document.getElementById('teams-insights-row').style.display = 'flex';
   renderTeamsInsights();
 }, 60);
 
