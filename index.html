@@ -1151,69 +1151,79 @@ function renderClientSection(amName) {
   document.getElementById('clients-section').style.display = 'block';
 }
 
+let _cttList = [], _cttAM = '', _cttSort = { col: 'qt', dir: -1 };
+
+function sortClientTrendBy(col) {
+  _cttSort = { col, dir: _cttSort.col === col ? _cttSort.dir * -1 : -1 };
+  renderClientTrendTable('client-trend-table', _cttList, _cttAM);
+}
+
 function renderClientTrendTable(id, list, amName) {
+  _cttList = list; _cttAM = amName;
   const el = document.getElementById(id);
   if (!el) return;
   if (!list.length) { el.innerHTML = ''; return; }
 
-  // Quarterly trend: recent 3m (idx 21-23) vs previous 3m (idx 18-20)
   const withTrend = list.map(c => {
     const rec  = (c.u[21]||0) + (c.u[22]||0) + (c.u[23]||0);
     const prev = (c.u[18]||0) + (c.u[19]||0) + (c.u[20]||0);
     let qt = null;
     if (prev > 0) qt = Math.round((rec - prev) / prev * 100);
     else if (rec > 0) qt = 100;
-    return { ...c, rec, prev, qt };
+    const s = c.u.findIndex(v=>v>0);
+    const vs = s >= 0 ? c.u.slice(s) : [];
+    let lr = null;
+    if (vs.length >= 2) {
+      const n=vs.length, sy=vs.reduce((a,b)=>a+b,0), sx=n*(n-1)/2, sxy=vs.reduce((a,v,i)=>a+i*v,0), sx2=n*(n-1)*(2*n-1)/6;
+      const d=n*sx2-sx*sx; if(d) { const slope=(n*sxy-sx*sy)/d, mean=sy/n; if(mean) lr=Math.round(slope/mean*100); }
+    }
+    return { ...c, rec, prev, qt, lr };
   });
 
-  // Sort by quarterly trend descending (nulls last)
+  const { col, dir } = _cttSort;
   const sorted = [...withTrend].sort((a, b) => {
-    if (a.qt === null && b.qt === null) return 0;
-    if (a.qt === null) return 1;
-    if (b.qt === null) return -1;
-    return b.qt - a.qt;
+    if (col === 'name') return dir * a.name.localeCompare(b.name);
+    const va = a[col], vb = b[col];
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    return dir * (va - vb);
   });
 
-  const amSafe = amName.replace(/'/g, "\'");
+  const amSafe = amName.replace(/'/g, "\\'");
+  const th = (key, align, label) => {
+    const active = _cttSort.col === key;
+    const arrow = active ? (_cttSort.dir === -1 ? ' ↓' : ' ↑') : '';
+    return `<th onclick="sortClientTrendBy('${key}')" style="padding:6px 10px;font-size:11px;font-weight:600;text-align:${align};cursor:pointer;user-select:none;white-space:nowrap;position:sticky;top:0;background:var(--surface);box-shadow:0 1px 0 var(--border);color:${active?'var(--dark)':'var(--muted)'};">${label}${arrow}</th>`;
+  };
+
   const rows = sorted.map((c, i) => {
-    const arrow = c.qt === null ? '—' : c.qt > 5 ? `<span style="color:#2E7D32;font-weight:700;">↑ ${c.qt}%</span>` : c.qt < -5 ? `<span style="color:#C62828;font-weight:700;">↓ ${Math.abs(c.qt)}%</span>` : `<span style="color:var(--muted);">→ ${c.qt}%</span>`;
-    const trend24 = (() => {
-      const vals = c.u.filter(v=>v>0);
-      if (vals.length < 2) return null;
-      const s = c.u.findIndex(v=>v>0);
-      const vs = c.u.slice(s);
-      const n = vs.length, xs = vs.map((_,i)=>i), sy=vs.reduce((a,b)=>a+b,0), sx=xs.reduce((a,b)=>a+b,0), sxy=xs.reduce((a,_,i)=>a+i*vs[i],0), sx2=xs.reduce((a,_,i)=>a+i*i,0);
-      const d=n*sx2-sx*sx; if(!d) return null;
-      const slope=(n*sxy-sx*sy)/d, mean=sy/n;
-      return mean ? Math.round(slope/mean*100) : null;
-    })();
-    const lr = trend24===null ? '—' : trend24 > 2 ? `<span style="color:#2E7D32;">+${trend24}%/m</span>` : trend24 < -2 ? `<span style="color:#C62828;">${trend24}%/m</span>` : `<span style="color:var(--muted);">${trend24}%/m</span>`;
-    return `<tr style="cursor:pointer;" onclick="showClientDetail('${amSafe}','${c.mid}')">
+    const qArrow = c.qt===null ? '—' : c.qt>5 ? `<span style="color:#2E7D32;font-weight:700;">↑ ${c.qt}%</span>` : c.qt<-5 ? `<span style="color:#C62828;font-weight:700;">↓ ${Math.abs(c.qt)}%</span>` : `<span style="color:var(--muted);">→ ${c.qt}%</span>`;
+    const lrHtml = c.lr===null ? '—' : c.lr>2 ? `<span style="color:#2E7D32;">+${c.lr}%/m</span>` : c.lr<-2 ? `<span style="color:#C62828;">${c.lr}%/m</span>` : `<span style="color:var(--muted);">${c.lr}%/m</span>`;
+    return `<tr style="cursor:pointer;border-bottom:1px solid var(--border);" onclick="showClientDetail('${amSafe}','${c.mid}')">
       <td style="padding:6px 10px;font-size:12px;color:var(--muted);">${i+1}</td>
       <td style="padding:6px 10px;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</td>
       <td style="padding:6px 10px;font-size:12px;text-align:right;">${fmt(c.rec)}</td>
       <td style="padding:6px 10px;font-size:12px;text-align:right;">${fmt(c.prev)}</td>
-      <td style="padding:6px 10px;font-size:12px;text-align:center;">${arrow}</td>
-      <td style="padding:6px 10px;font-size:12px;text-align:center;">${lr}</td>
+      <td style="padding:6px 10px;font-size:12px;text-align:center;">${qArrow}</td>
+      <td style="padding:6px 10px;font-size:12px;text-align:center;">${lrHtml}</td>
       <td style="padding:6px 10px;font-size:12px;text-align:right;color:var(--muted);">${fmt(c.u24)}</td>
     </tr>`;
   }).join('');
 
   el.innerHTML = `
     <div style="font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;">TENDÊNCIA POR CLIENTE</div>
-    <div style="overflow-y:auto;max-height:260px;border:1px solid var(--border);border-radius:8px;">
+    <div style="overflow-y:auto;max-height:300px;border:1px solid var(--border);border-radius:8px;">
       <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:var(--surface);position:sticky;top:0;z-index:1;">
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;">#</th>
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;">Cliente</th>
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:right;">Rec. 3m</th>
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:right;">Ant. 3m</th>
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Trim.</th>
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Reg. 24m</th>
-            <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:right;">Total 24m</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th style="padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;position:sticky;top:0;background:var(--surface);box-shadow:0 1px 0 var(--border);">#</th>
+          ${th('name','left','Cliente')}
+          ${th('rec','right','Rec. 3m')}
+          ${th('prev','right','Ant. 3m')}
+          ${th('qt','center','Trim.')}
+          ${th('lr','center','Reg. 24m')}
+          ${th('u24','right','Total 24m')}
+        </tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
