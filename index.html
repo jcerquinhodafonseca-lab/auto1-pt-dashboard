@@ -243,7 +243,6 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
       <h3 id="client-chart-title" style="margin:0;">EVOLUÇÃO DE COMPRAS</h3>
       <div class="period-tabs" id="client-period-tabs">
-        <button class="tab-btn" onclick="setClientPeriod('MTD')">MTD</button>
         <button class="tab-btn active" onclick="setClientPeriod('24M')">24 Meses</button>
         <button class="tab-btn" onclick="setClientPeriod('YTD')">YTD</button>
         <button class="tab-btn" onclick="setClientPeriod('12M')">12 Meses</button>
@@ -971,7 +970,7 @@ function renderClientPeriod() {
     (diffHTML ? '<div class="stat-box" style="justify-content:center;">' + diffHTML + '</div>' : '');
 
   // Chart title
-  var titleMap = { MTD: 'EVOLUÇÃO — MTD', YTD: 'EVOLUÇÃO — YTD', '12M': 'EVOLUÇÃO — 12 MESES', MES: 'EVOLUÇÃO — MÊS ESPECÍFICO' };
+  var titleMap = { YTD: 'EVOLUÇÃO — YTD', '12M': 'EVOLUÇÃO — 12 MESES', MES: 'EVOLUÇÃO — MÊS ESPECÍFICO' };
   document.getElementById('client-chart-title').textContent = titleMap[currentClientPeriod] || 'EVOLUÇÃO';
 
   // Destroy existing clientChart and draw comparison chart
@@ -991,14 +990,36 @@ function renderClientPeriod() {
         if (TEAMS[ti].ams[ai].name === amName) { teamColor = TEAMS[ti].color; break; }
       }
     }
+    // Calls slice aligned to the current period
+    var callsData = null;
+    if (currentClientPeriod === 'YTD')      callsData = client.c.slice(18, 24);
+    else if (currentClientPeriod === '12M') callsData = client.c.slice(12, 24);
+    else if (currentClientPeriod === 'MES' && currentClientMes != null) callsData = [client.c[currentClientMes]];
+
+    var datasets = [];
     if (info.type === 'line') {
-      drawLine('client-chart', wrap, info.curLabels, [
-        { label: info.curLabel, data: info.curData, borderColor: teamColor, borderWidth: 2.5, fill: true, backgroundColor: teamColor+'18', pointRadius: 3, tension: 0.3 },
-        { label: info.prevLabel, data: info.prevData, borderColor: 'rgba(150,150,150,0.8)', borderWidth: 2, fill: false, pointRadius: 2, tension: 0.3, borderDash: [4,4] }
-      ]);
+      datasets.push({ type:'line', label:info.curLabel, data:info.curData, borderColor:teamColor, borderWidth:2.5, fill:true, backgroundColor:teamColor+'18', pointRadius:3, tension:0.3, yAxisID:'y', order:2 });
+      if (info.prevData) datasets.push({ type:'line', label:info.prevLabel, data:info.prevData, borderColor:'rgba(150,150,150,0.8)', borderWidth:2, fill:false, pointRadius:2, tension:0.3, borderDash:[4,4], yAxisID:'y', order:3 });
     } else {
-      drawBar('client-chart', wrap, info.curLabels, info.curData, teamColor, info.prevData || null, 'rgba(150,150,150,0.4)');
+      datasets.push({ type:'bar', label:info.curLabel, data:info.curData, backgroundColor:teamColor+'cc', borderRadius:3, yAxisID:'y', order:2 });
+      if (info.prevData) datasets.push({ type:'bar', label:info.prevLabel, data:info.prevData, backgroundColor:'rgba(150,150,150,0.4)', borderRadius:3, yAxisID:'y', order:3 });
     }
+    if (callsData) {
+      datasets.push({ type:'line', label:'Calls', data:callsData, borderColor:'rgba(140,140,140,0.65)', backgroundColor:'transparent', borderWidth:2, pointRadius:2, tension:0.35, yAxisID:'y2', order:1 });
+    }
+    clientChart = new Chart(el.getContext('2d'), {
+      data: { labels:info.curLabels, datasets:datasets },
+      options: {
+        responsive:false, maintainAspectRatio:false,
+        plugins: { legend:{ display:true, labels:{ font:{size:11}, boxWidth:12, padding:12 } } },
+        scales: {
+          x:{ ticks:{ font:{size:10}, maxRotation:45, autoSkip:false } },
+          y:{ beginAtZero:true, title:{ display:true, text:'Unidades', font:{size:11} }, ticks:{ font:{size:11} } },
+          y2: callsData ? { beginAtZero:true, position:'right', title:{ display:true, text:'Calls', font:{size:11} }, ticks:{ font:{size:11} }, grid:{ drawOnChartArea:false } } : { display:false }
+        },
+        animation:false
+      }
+    });
   }, 50);
 }
 
