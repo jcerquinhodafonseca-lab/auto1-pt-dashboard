@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Auto1 PT — Dashboard AM</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;background:#f4f5f7;color:#1a1a2e}
+a{color:#e63946;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Layout */
+header{background:#1a1a2e;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:16px}
+header h1{font-size:18px;font-weight:700;letter-spacing:.5px}
+header span{font-size:12px;opacity:.6;margin-left:auto}
+.container{max-width:1400px;margin:0 auto;padding:24px}
+
+/* Nav Tabs */
+.tabs{display:flex;gap:0;border-bottom:2px solid #e0e0e0;margin-bottom:24px}
+.tab{padding:10px 20px;cursor:pointer;font-weight:600;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab.active{color:#e63946;border-bottom-color:#e63946}
+.tab:hover:not(.active){color:#333}
+.view{display:none}.view.active{display:block}
+
+/* Search Bar */
+.search-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:9px 14px;border:1px solid #ddd;border-radius:6px;font-size:14px;background:#fff;min-width:160px}
+.search-bar input:focus,.search-bar select:focus{outline:none;border-color:#e63946}
+.btn{padding:9px 18px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s}
+.btn-primary{background:#e63946;color:#fff}.btn-primary:hover{background:#c62828}
+.btn-secondary{background:#eee;color:#333}.btn-secondary:hover{background:#ddd}
+.btn-green{background:#2e7d32;color:#fff}.btn-green:hover{background:#1b5e20}
+.btn-wa{background:#25d366;color:#fff}.btn-wa:hover{background:#128c7e}
+.btn-sm{padding:5px 12px;font-size:13px}
+
+/* Stats row */
+.stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.stat{background:#fff;border-radius:8px;padding:14px 20px;flex:1;min-width:140px;border:1px solid #e8e8e8}
+.stat .num{font-size:26px;font-weight:700;color:#e63946}
+.stat .lbl{font-size:12px;color:#888;margin-top:2px}
+
+/* Cars Table */
+.table-wrap{background:#fff;border-radius:8px;border:1px solid #e8e8e8;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-weight:600;opacity:.65;font-size:13px;background:#fafafa;border-bottom:1px solid #eee;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600}
+.badge-ok{background:#e8f5e9;color:#2e7d32}
+.badge-warn{background:#fff3e0;color:#e65100}
+.badge-neutral{background:#e3f2fd;color:#1565c0}
+.badge-gray{background:#f5f5f5;color:#666}
+.pagination{padding:12px 16px;display:flex;align-items:center;gap:12px;border-top:1px solid #f0f0f0}
+.pag-btn{padding:4px 12px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;font-size:13px}
+.pag-btn:disabled{opacity:.35;cursor:default}
+.pag-info{font-size:13px;color:#666;flex:1;text-align:center}
+
+/* Car Detail */
+.detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:900px){.detail-layout{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:8px;border:1px solid #e8e8e8;padding:20px}
+.card h3{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a1a2e;border-bottom:1px solid #f0f0f0;padding-bottom:10px}
+.info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f9f9f9}
+.info-row:last-child{border-bottom:none}
+.info-label{color:#888;font-size:13px}
+.info-value{font-weight:600;font-size:13px;text-align:right}
+.calc-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.calc-row label{font-size:13px;color:#555;align-self:center}
+.calc-row input{padding:7px 10px;border:1px solid #ddd;border-radius:5px;font-size:14px;width:100%}
+.calc-row input:focus{outline:none;border-color:#e63946}
+.calc-result{background:#1a1a2e;color:#fff;border-radius:6px;padding:14px;margin-top:12px}
+.calc-result .total{font-size:20px;font-weight:700}
+.calc-result .diff{font-size:13px;margin-top:4px;opacity:.85}
+.diff-green{color:#66bb6a}
+.diff-red{color:#ef5350}
+
+/* Message Preview */
+.msg-box{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:8px;padding:16px;font-size:13px;white-space:pre-wrap;line-height:1.7;min-height:120px;color:#222}
+.msg-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+
+/* History */
+.history-item{background:#fff;border-radius:8px;border:1px solid #e8e8e8;padding:16px;margin-bottom:12px}
+.history-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.history-car{font-weight:700;font-size:15px}
+.history-meta{font-size:12px;color:#888}
+.history-client{font-size:13px;color:#555;margin-bottom:6px}
+.history-msg{font-size:12px;color:#777;background:#f5f5f5;padding:8px;border-radius:4px;white-space:pre-wrap;max-height:80px;overflow:hidden}
+
+/* Client search */
+.client-search{position:relative}
+.client-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:5px;max-height:200px;overflow-y:auto;z-index:10;display:none;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.client-option{padding:9px 12px;cursor:pointer;font-size:13px}
+.client-option:hover{background:#f5f5f5}
+.client-option .opt-id{font-size:11px;color:#aaa;margin-left:8px}
+
+/* Loading / Error */
+.loading{text-align:center;padding:40px;color:#888}
+.error-msg{background:#ffebee;color:#c62828;padding:12px 16px;border-radius:6px;margin-bottom:16px}
+.back-btn{margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="background:#e63946;border-radius:6px;padding:4px 10px;font-weight:700;letter-spacing:.5px;font-size:13px">A1</div>
+  <h1>Auto1 Portugal — Dashboard AM</h1>
+  <span id="am-name-display"></span>
+</header>
+
+<div class="container">
+
+  <!-- AM Name Setup (shown once) -->
+  <div id="am-setup" style="background:#fff;border-radius:8px;border:1px solid #e8e8e8;padding:24px;max-width:400px;margin:0 auto 24px">
+    <h3 style="margin-bottom:12px;font-size:16px">Bem-vindo! Qual é o seu nome?</h3>
+    <div style="display:flex;gap:10px">
+      <input id="am-name-input" type="text" placeholder="O seu nome (ex: João Silva)" style="flex:1;padding:9px 14px;border:1px solid #ddd;border-radius:6px;font-size:14px"/>
+      <button class="btn btn-primary" onclick="setAmName()">Entrar</button>
+    </div>
+  </div>
+
+  <div id="main-app" style="display:none">
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('browse')">Catálogo PT</div>
+      <div class="tab" onclick="switchTab('search')">Pesquisar Carro</div>
+      <div class="tab" onclick="switchTab('history')">Histórico</div>
+    </div>
+
+    <!-- ════ BROWSE TAB ════ -->
+    <div id="tab-browse" class="view active">
+      <div class="stats">
+        <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">Carros disponíveis</div></div>
+        <div class="stat"><div class="num" id="stat-brands">—</div><div class="lbl">Marcas</div></div>
+        <div class="stat"><div class="num" id="stat-recs">—</div><div class="lbl">Recomendações enviadas</div></div>
+      </div>
+
+      <div class="search-bar">
+        <input id="browse-q" type="text" placeholder="Pesquisar marca, modelo, stock…" oninput="filterCars()" style="flex:2;min-width:200px"/>
+        <select id="filter-make" onchange="filterCars()"><option value="">Todas as marcas</option></select>
+        <select id="filter-fuel" onchange="filterCars()"><option value="">Todos os combustíveis</option></select>
+        <select id="filter-condition" onchange="filterCars()">
+          <option value="">Qualquer condição</option>
+          <option value="não acidentado">Não acidentado</option>
+          <option value="acidentado">Acidentado</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Limpar</button>
+      </div>
+
+      <div id="browse-loading" class="loading">A carregar catálogo…</div>
+      <div id="browse-error" class="error-msg" style="display:none"></div>
+
+      <div id="browse-table" style="display:none">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Stock</th><th>Marca</th><th>Modelo</th><th>Ano</th>
+                <th>Km</th><th>Combustível</th><th>Condição</th>
+                <th>Origem</th><th>Preço Auto1</th><th>Localização</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="cars-tbody"></tbody>
+          </table>
+          <div class="pagination">
+            <button class="pag-btn" id="pag-prev" onclick="changePage(-1)" disabled>← Anterior</button>
+            <span class="pag-info" id="pag-info"></span>
+            <button class="pag-btn" id="pag-next" onclick="changePage(1)">Próximo →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SEARCH TAB ════ -->
+    <div id="tab-search" class="view">
+      <div class="search-bar" style="max-width:500px">
+        <input id="stock-input" type="text" placeholder="Nº do carro (ex: HA23712)"
+               style="flex:1;text-transform:uppercase" maxlength="12"
+               onkeydown="if(event.key==='Enter') searchCar()"/>
+        <button class="btn btn-primary" onclick="searchCar()">Pesquisar</button>
+      </div>
+      <div id="search-loading" class="loading" style="display:none">A procurar…</div>
+      <div id="search-error" class="error-msg" style="display:none"></div>
+      <div id="car-detail" style="display:none"></div>
+    </div>
+
+    <!-- ════ HISTORY TAB ════ -->
+    <div id="tab-history" class="view">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-size:16px;font-weight:700">Histórico de Recomendações</h3>
+        <button class="btn btn-secondary btn-sm" onclick="loadHistory()">↻ Atualizar</button>
+      </div>
+      <div id="history-loading" class="loading" style="display:none">A carregar…</div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────
+let allCars = [], filteredCars = [], page = 0;
+const PAGE_SIZE = 25;
+let amName = localStorage.getItem("am_name") || "";
+let currentCar = null;
+
+// ─────────────────────────────────────────────────────
+// AM Name
+// ─────────────────────────────────────────────────────
+window.onload = function() {
+  if (amName) {
+    showApp();
+  }
+};
+
+function setAmName() {
+  const v = document.getElementById("am-name-input").value.trim();
+  if (!v) return;
+  amName = v;
+  localStorage.setItem("am_name", v);
+  showApp();
+}
+
+function showApp() {
+  document.getElementById("am-setup").style.display = "none";
+  document.getElementById("main-app").style.display = "block";
+  document.getElementById("am-name-display").textContent = amName;
+  loadCars();
+  loadRecCount();
+}
+
+// ─────────────────────────────────────────────────────
+// Tabs
+// ─────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll(".tab").forEach((t,i) => {
+    const names = ["browse","search","history"];
+    t.classList.toggle("active", names[i] === name);
+  });
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  if (name === "history") loadHistory();
+}
+
+// ─────────────────────────────────────────────────────
+// Load Cars
+// ─────────────────────────────────────────────────────
+async function loadCars() {
+  document.getElementById("browse-loading").style.display = "block";
+  document.getElementById("browse-error").style.display = "none";
+  document.getElementById("browse-table").style.display = "none";
+  try {
+    const res = await fetch("/api/cars");
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    allCars = data.cars;
+    filteredCars = [...allCars];
+
+    document.getElementById("stat-total").textContent = data.total;
+    document.getElementById("stat-brands").textContent = data.brands.length;
+
+    // Populate filters
+    const makeEl = document.getElementById("filter-make");
+    data.brands.forEach(b => {
+      const o = document.createElement("option"); o.value = b; o.textContent = b;
+      makeEl.appendChild(o);
+    });
+    const fuelEl = document.getElementById("filter-fuel");
+    data.fuels.forEach(f => {
+      const o = document.createElement("option"); o.value = f.toLowerCase(); o.textContent = f;
+      fuelEl.appendChild(o);
+    });
+
+    document.getElementById("browse-loading").style.display = "none";
+    document.getElementById("browse-table").style.display = "block";
+    renderTable();
+  } catch(e) {
+    document.getElementById("browse-loading").style.display = "none";
+    document.getElementById("browse-error").style.display = "block";
+    document.getElementById("browse-error").textContent = "Erro a carregar catálogo: " + e.message;
+  }
+}
+
+async function loadRecCount() {
+  try {
+    const res = await fetch("/api/recommendations");
+    const data = await res.json();
+    document.getElementById("stat-recs").textContent = data.length;
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────────────
+// Filter & Render Table
+// ─────────────────────────────────────────────────────
+function filterCars() {
+  const q = document.getElementById("browse-q").value.trim().toLowerCase();
+  const make = document.getElementById("filter-make").value.toLowerCase();
+  const fuel = document.getElementById("filter-fuel").value.toLowerCase();
+  const cond = document.getElementById("filter-condition").value.toLowerCase();
+
+  filteredCars = allCars.filter(c => {
+    if (make && c.make.toLowerCase() !== make) return false;
+    if (fuel && c.fuel_type.toLowerCase() !== fuel) return false;
+    if (cond && c.condition.toLowerCase() !== cond) return false;
+    if (q) {
+      const search = (c.make + " " + c.model + " " + c.stock_number + " " + c.branch).toLowerCase();
+      if (!search.includes(q)) return false;
+    }
+    return true;
+  });
+
+  page = 0;
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById("browse-q").value = "";
+  document.getElementById("filter-make").value = "";
+  document.getElementById("filter-fuel").value = "";
+  document.getElementById("filter-condition").value = "";
+  filterCars();
+}
+
+function renderTable() {
+  const start = page * PAGE_SIZE;
+  const slice = filteredCars.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById("cars-tbody");
+  tbody.innerHTML = slice.map(c => `
+    <tr>
+      <td><strong>${c.stock_number}</strong></td>
+      <td>${c.make}</td>
+      <td>${c.model}</td>
+      <td>${c.built_year || "—"}</td>
+      <td>${c.mileage ? c.mileage.toLocaleString("pt") + " km" : "—"}</td>
+      <td>${c.fuel_type || "—"}</td>
+      <td><span class="badge ${c.condition === 'Não acidentado' ? 'badge-ok' : c.condition === 'Acidentado' ? 'badge-warn' : 'badge-gray'}">${c.condition}</span></td>
+      <td><span class="badge ${c.origin === 'Nacional' ? 'badge-neutral' : 'badge-gray'}">${c.origin}</span></td>
+      <td>${c.auto1_price ? "€ " + c.auto1_price.toLocaleString("pt") : "—"}</td>
+      <td>${c.branch || "—"}</td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="openCarFromBrowse('${c.stock_number}')">Selecionar</button>
+      </td>
+    </tr>
+  `).join("");
+
+  const total = filteredCars.length;
+  const end = Math.min(start + PAGE_SIZE, total);
+  document.getElementById("pag-info").textContent = total === 0 ? "Sem resultados" : `${start+1}–${end} de ${total}`;
+  document.getElementById("pag-prev").disabled = page === 0;
+  document.getElementById("pag-next").disabled = end >= total;
+}
+
+function changePage(dir) {
+  page += dir;
+  renderTable();
+  window.scrollTo(0,0);
+}
+
+function openCarFromBrowse(stockNumber) {
+  document.getElementById("stock-input").value = stockNumber;
+  switchTab("search");
+  searchCar();
+}
+
+// ─────────────────────────────────────────────────────
+// Search Car
+// ─────────────────────────────────────────────────────
+async function searchCar() {
+  const sn = document.getElementById("stock-input").value.trim().toUpperCase();
+  if (!sn) return;
+
+  const loadEl = document.getElementById("search-loading");
+  const errEl = document.getElementById("search-error");
+  const detailEl = document.getElementById("car-detail");
+
+  loadEl.style.display = "block";
+  errEl.style.display = "none";
+  detailEl.style.display = "none";
+
+  try {
+    const res = await fetch(`/api/cars/${sn}`);
+    const car = await res.json();
+    if (car.error) throw new Error(car.error);
+    currentCar = car;
+    loadEl.style.display = "none";
+    detailEl.style.display = "block";
+    renderCarDetail(car);
+  } catch(e) {
+    loadEl.style.display = "none";
+    errEl.style.display = "block";
+    errEl.textContent = "Carro não encontrado: " + e.message;
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// Car Detail
+// ─────────────────────────────────────────────────────
+function renderCarDetail(car) {
+  const versionLabel = car.version ? ` ${car.version}` : "";
+  const title = `${car.make} ${car.model}${versionLabel}`;
+  const a1price = car.auto1_price || 0;
+
+  document.getElementById("car-detail").innerHTML = `
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2 style="font-size:20px;font-weight:700">${title}</h2>
+        <a href="${car.url}" target="_blank" style="font-size:13px">🔗 Ver no Auto1 (${car.stock_number})</a>
+      </div>
+    </div>
+
+    <div class="detail-layout">
+
+      <!-- Left: Car Info -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3>Informação do Carro</h3>
+          ${infoRow("Marca", car.make)}
+          ${infoRow("Modelo", car.model)}
+          ${car.version ? infoRow("Versão", car.version) : ""}
+          ${infoRow("Ano", car.built_year)}
+          ${infoRow("Quilómetros", car.mileage ? car.mileage.toLocaleString("pt") + " km" : "—")}
+          ${infoRow("Combustível", car.fuel_type)}
+          ${infoRow("Condição", `<span class="badge ${car.condition === 'Não acidentado' ? 'badge-ok' : 'badge-warn'}">${car.condition}</span>`)}
+          ${infoRow("Origem", `<span class="badge badge-neutral">${car.origin}</span>`)}
+          ${infoRow("Localização", car.branch)}
+          ${car.first_registration_date ? infoRow("1ª Registo", car.first_registration_date) : ""}
+          ${infoRow("Preço Auto1", `<strong style="color:#e63946">€ ${a1price.toLocaleString("pt")}</strong>`)}
+        </div>
+
+        <!-- Client Selection -->
+        <div class="card">
+          <h3>Cliente</h3>
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;color:#555;display:block;margin-bottom:4px">Nome do cliente (pesquisar)</label>
+            <div class="client-search">
+              <input id="client-search-input" type="text" placeholder="Pesquisar por nome do stand…"
+                style="width:100%;padding:9px 14px;border:1px solid #ddd;border-radius:6px;font-size:14px"
+                oninput="searchClient()" onblur="setTimeout(hideClientDrop,200)"/>
+              <div class="client-dropdown" id="client-dropdown"></div>
+            </div>
+          </div>
+          <div class="calc-row">
+            <label>ID do cliente</label>
+            <input id="client-id" type="text" placeholder="ID Auto1 (opcional)"/>
+          </div>
+          <div class="calc-row">
+            <label>Nome (confirmar)</label>
+            <input id="client-name" type="text" placeholder="Nome do stand/cliente"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Calculator + Message -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3>Calculadora de Margem</h3>
+          <div class="calc-row"><label>PVP Ideal (€)</label><input id="pvp" type="number" placeholder="ex: 14950" oninput="calcMargin()"/></div>
+          <div class="calc-row"><label>Custos de Serviço (€)</label><input id="svc" type="number" placeholder="ex: 418" oninput="calcMargin()"/></div>
+          <div class="calc-row"><label>Transporte (€)</label><input id="trp" type="number" placeholder="ex: 99" oninput="calcMargin()"/></div>
+          <div class="calc-row"><label>Obra (€)</label><input id="obra" type="number" placeholder="ex: 750" oninput="calcMargin()"/></div>
+          <div class="calc-row"><label>Margem Bruta (€)</label><input id="margin" type="number" placeholder="ex: 3000" oninput="calcMargin()"/></div>
+          <div class="calc-result" id="calc-result" style="display:none">
+            <div style="font-size:13px;opacity:.8;margin-bottom:4px">Preço ideal de compra</div>
+            <div class="total" id="calc-ideal">—</div>
+            <div class="diff" id="calc-diff"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Mensagem para WhatsApp</h3>
+          <div class="msg-box" id="msg-preview">Preencha a calculadora para gerar a mensagem…</div>
+          <div class="msg-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyMessage()">📋 Copiar</button>
+            <button class="btn btn-wa btn-sm" onclick="sendWhatsApp()">📱 Enviar WhatsApp</button>
+            <button class="btn btn-green btn-sm" onclick="saveRecommendation()">💾 Guardar</button>
+          </div>
+          <div id="save-feedback" style="font-size:13px;color:#2e7d32;margin-top:8px;display:none">✓ Guardado com sucesso!</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function infoRow(label, value) {
+  return `<div class="info-row"><span class="info-label">${label}</span><span class="info-value">${value ?? "—"}</span></div>`;
+}
+
+// ─────────────────────────────────────────────────────
+// Calculator
+// ─────────────────────────────────────────────────────
+function calcMargin() {
+  const pvp = parseFloat(document.getElementById("pvp")?.value) || 0;
+  const svc = parseFloat(document.getElementById("svc")?.value) || 0;
+  const trp = parseFloat(document.getElementById("trp")?.value) || 0;
+  const obra = parseFloat(document.getElementById("obra")?.value) || 0;
+  const margin = parseFloat(document.getElementById("margin")?.value) || 0;
+
+  if (!pvp) {
+    document.getElementById("calc-result").style.display = "none";
+    updateMessage();
+    return;
+  }
+
+  const ideal = pvp - svc - trp - obra - margin;
+  const a1 = currentCar?.auto1_price || 0;
+  const diff = a1 - ideal;
+
+  document.getElementById("calc-result").style.display = "block";
+  document.getElementById("calc-ideal").textContent = "€ " + ideal.toLocaleString("pt", {minimumFractionDigits:0, maximumFractionDigits:0});
+
+  if (a1 && Math.abs(diff) > 1) {
+    const cheaper = diff < 0;
+    const diffAbs = Math.abs(diff).toLocaleString("pt", {minimumFractionDigits:0, maximumFractionDigits:0});
+    document.getElementById("calc-diff").innerHTML = cheaper
+      ? `<span class="diff-green">✓ O nosso está €${diffAbs} mais barato → incrementa margem bruta</span>`
+      : `<span class="diff-red">⚠ O nosso está €${diffAbs} acima do preço ideal</span>`;
+  } else {
+    document.getElementById("calc-diff").textContent = "Preço alinhado com o ideal";
+  }
+
+  updateMessage();
+}
+
+// ─────────────────────────────────────────────────────
+// Message Generator
+// ─────────────────────────────────────────────────────
+function updateMessage() {
+  if (!currentCar) return;
+  const car = currentCar;
+
+  const pvp = parseFloat(document.getElementById("pvp")?.value) || 0;
+  const svc = parseFloat(document.getElementById("svc")?.value) || 0;
+  const trp = parseFloat(document.getElementById("trp")?.value) || 0;
+  const obra = parseFloat(document.getElementById("obra")?.value) || 0;
+  const margin = parseFloat(document.getElementById("margin")?.value) || 0;
+
+  const version = car.version ? ` ${car.version}` : "";
+  const carTitle = `${car.make} ${car.model}${version}`;
+  const year = car.built_year || "—";
+  const km = car.mileage ? car.mileage.toLocaleString("pt") + " km" : "—";
+  const a1price = car.auto1_price || 0;
+
+  if (!pvp) {
+    document.getElementById("msg-preview").textContent =
+      `${carTitle} - ${year} - ${km} - ${car.condition} - ${car.origin}\n\nPreencha a calculadora para ver a análise financeira completa…`;
+    return;
+  }
+
+  const ideal = pvp - svc - trp - obra - margin;
+  const diff = a1price - ideal;
+  const fmt = n => "€ " + Math.round(n).toLocaleString("pt");
+
+  let msg = `${carTitle} - ${year} - ${km} - ${car.condition} - ${car.origin}\n\n`;
+  msg += `${fmt(pvp)} (PVP ideal)`;
+  if (svc) msg += ` - ${fmt(svc)} (Custos de serviço)`;
+  if (trp) msg += ` - ${fmt(trp)} (Transporte)`;
+  if (obra) msg += ` - ${fmt(obra)} (Obra)`;
+  if (margin) msg += ` - ${fmt(margin)} (Margem bruta)`;
+  msg += ` = ${fmt(ideal)} (Preço ideal de compra)`;
+
+  if (a1price && Math.abs(diff) > 1) {
+    const diffAbs = Math.abs(diff).toLocaleString("pt", {minimumFractionDigits:0, maximumFractionDigits:0});
+    if (diff < 0) {
+      msg += `\nO nosso está €${diffAbs} mais barato, o que incrementa à margem bruta`;
+    } else {
+      msg += `\nO nosso está €${diffAbs} acima do preço ideal de compra`;
+    }
+  }
+
+  msg += `\n\n🔗 ${car.url}`;
+
+  document.getElementById("msg-preview").textContent = msg;
+}
+
+// ─────────────────────────────────────────────────────
+// Client Search
+// ─────────────────────────────────────────────────────
+let clientSearchTimer = null;
+async function searchClient() {
+  clearTimeout(clientSearchTimer);
+  const q = document.getElementById("client-search-input").value.trim();
+  if (q.length < 2) { hideClientDrop(); return; }
+  clientSearchTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`/api/merchants?q=${encodeURIComponent(q)}`);
+      const merchants = await res.json();
+      const drop = document.getElementById("client-dropdown");
+      if (!merchants.length) { hideClientDrop(); return; }
+      drop.innerHTML = merchants.map(m =>
+        `<div class="client-option" onmousedown="selectClient('${m.id}','${escapeAttr(m.company)}')">
+          ${escapeHtml(m.company)}<span class="opt-id">#${m.id}</span>
+        </div>`
+      ).join("");
+      drop.style.display = "block";
+    } catch(e) {}
+  }, 300);
+}
+
+function selectClient(id, name) {
+  document.getElementById("client-id").value = id;
+  document.getElementById("client-name").value = name;
+  document.getElementById("client-search-input").value = name;
+  hideClientDrop();
+}
+
+function hideClientDrop() {
+  const d = document.getElementById("client-dropdown");
+  if (d) d.style.display = "none";
+}
+
+// ─────────────────────────────────────────────────────
+// Actions
+// ─────────────────────────────────────────────────────
+function copyMessage() {
+  const msg = document.getElementById("msg-preview")?.textContent || "";
+  navigator.clipboard.writeText(msg).then(() => {
+    const btn = event.target; btn.textContent = "✓ Copiado!";
+    setTimeout(() => { btn.textContent = "📋 Copiar"; }, 2000);
+  });
+}
+
+function sendWhatsApp() {
+  const msg = document.getElementById("msg-preview")?.textContent || "";
+  const encoded = encodeURIComponent(msg);
+  window.open(`https://web.whatsapp.com/send?text=${encoded}`, "_blank");
+}
+
+async function saveRecommendation() {
+  if (!currentCar) return;
+  const pvp = parseFloat(document.getElementById("pvp")?.value) || 0;
+  const svc = parseFloat(document.getElementById("svc")?.value) || 0;
+  const trp = parseFloat(document.getElementById("trp")?.value) || 0;
+  const obra = parseFloat(document.getElementById("obra")?.value) || 0;
+  const margin = parseFloat(document.getElementById("margin")?.value) || 0;
+  const msg = document.getElementById("msg-preview")?.textContent || "";
+  const clientId = document.getElementById("client-id")?.value || "";
+  const clientName = document.getElementById("client-name")?.value || "";
+
+  try {
+    await fetch("/api/recommendations", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        stock_number: currentCar.stock_number,
+        make: currentCar.make,
+        model: currentCar.model,
+        built_year: currentCar.built_year,
+        mileage: currentCar.mileage,
+        auto1_price: currentCar.auto1_price,
+        pvp_ideal: pvp, service_costs: svc, transport: trp, obra, margin,
+        client_id: clientId, client_name: clientName,
+        am_name: amName, message: msg,
+      }),
+    });
+    document.getElementById("save-feedback").style.display = "block";
+    setTimeout(() => { document.getElementById("save-feedback").style.display = "none"; }, 3000);
+    loadRecCount();
+  } catch(e) {
+    alert("Erro ao guardar: " + e.message);
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// History
+// ─────────────────────────────────────────────────────
+async function loadHistory() {
+  const el = document.getElementById("history-list");
+  document.getElementById("history-loading").style.display = "block";
+  el.innerHTML = "";
+  try {
+    const res = await fetch("/api/recommendations");
+    const recs = await res.json();
+    document.getElementById("history-loading").style.display = "none";
+    if (!recs.length) { el.innerHTML = '<p style="color:#888;padding:20px">Sem recomendações ainda.</p>'; return; }
+    el.innerHTML = recs.map(r => {
+      const ideal = r.ideal_buy_price ? "€ " + Math.round(r.ideal_buy_price).toLocaleString("pt") : "—";
+      const diff = r.difference;
+      const diffStr = diff != null ? (diff < 0 ? `✓ €${Math.abs(Math.round(diff)).toLocaleString("pt")} mais barato` : `⚠ €${Math.round(diff).toLocaleString("pt")} acima`) : "";
+      return `
+        <div class="history-item">
+          <div class="history-header">
+            <div>
+              <div class="history-car">${r.make} ${r.model} — ${r.stock_number}</div>
+              <div class="history-meta">${r.built_year || "—"} · ${r.mileage ? r.mileage.toLocaleString("pt")+"km" : "—"} · Preço ideal: ${ideal} ${diffStr}</div>
+            </div>
+            <div class="history-meta">${r.am_name || "—"}<br/>${r.created_at ? r.created_at.substring(0,16).replace("T"," ") : ""}</div>
+          </div>
+          <div class="history-client">👤 ${r.client_name || "—"} ${r.client_id ? "(#"+r.client_id+")" : ""}</div>
+          <div class="history-msg">${escapeHtml(r.message || "")}</div>
+        </div>
+      `;
+    }).join("");
+  } catch(e) {
+    document.getElementById("history-loading").style.display = "none";
+    el.innerHTML = `<div class="error-msg">Erro: ${e.message}</div>`;
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// Utils
+// ─────────────────────────────────────────────────────
+function escapeHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function escapeAttr(s) {
+  return String(s).replace(/'/g,"\\'").replace(/"/g,"&quot;");
+}
+</script>
+</body>
+</html>
