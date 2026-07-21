@@ -883,13 +883,13 @@ function slugify(s) {
 
 function openStandVirtual(car) {
   const fuelMap = {
-    'Diesel': 'diesel', 'Elétrico': 'electric'
+    'Diesel': 'diesel', 'Elétrico': 'electric', 'Gasolina': 'gaz'
   };
 
-  // Round km range to 50k steps (e.g. 88 005 km -> 50 000-150 000, not 38 005-138 005)
+  // Round km to a single 50k bucket (e.g. 88 005 km -> 50 000-100 000, not 50 000-150 000)
   const km = car.km || 0;
   const kmMin = Math.floor(km / 50000) * 50000;
-  const kmMax = Math.ceil(km / 50000) * 50000 + 50000;
+  const kmMax = kmMin + 50000;
 
   const makeSlug = slugify(car.mk);
   const modelSlug = slugify(car.mo);
