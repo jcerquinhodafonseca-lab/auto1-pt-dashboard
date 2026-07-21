@@ -886,12 +886,16 @@ function openStandVirtual(car) {
     'Diesel': 'diesel', 'Elétrico': 'electric'
   };
 
-  // Build km range (±50k)
-  const kmMin = Math.max(0, (car.km || 0) - 50000);
-  const kmMax = (car.km || 0) + 50000;
+  // Round km range to 50k steps (e.g. 88 005 km -> 50 000-150 000, not 38 005-138 005)
+  const km = car.km || 0;
+  const kmMin = Math.floor(km / 50000) * 50000;
+  const kmMax = Math.ceil(km / 50000) * 50000 + 50000;
 
   const makeSlug = slugify(car.mk);
-  const path = makeSlug ? `/carros/${makeSlug}` : '/carros';
+  const modelSlug = slugify(car.mo);
+  const path = makeSlug
+    ? (modelSlug ? `/carros/${makeSlug}/${modelSlug}` : `/carros/${makeSlug}`)
+    : '/carros';
 
   const params = {
     'search[filter_float_mileage:from]': kmMin,
