@@ -245,6 +245,8 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 .loading{text-align:center;padding:48px;color:var(--muted);font-size:13px}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+.car-hero-link-sv{display:inline-block;margin-top:8px;padding:10px 14px;background:rgba(255,255,255,.1);color:#fff;text-decoration:none;border-radius:6px;font-size:13px;border:1px solid rgba(255,255,255,.2);transition:all 200ms;cursor:pointer}
+.car-hero-link-sv:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
 </style>
 </head>
 <body>
@@ -580,6 +582,7 @@ function openCar(idx) {
       </div>
       <div class="car-hero-price">${c.p ? '€ '+new Intl.NumberFormat('pt-PT').format(c.p) : 'Sem preço'} <span>preço auto1</span></div>
       <a class="car-hero-link" href="https://www.auto1.com/pt/app/merchant/car/${c.s}" target="_blank">Ver no site auto1 &#8599;</a>
+      <button class="car-hero-link-sv" onclick="openStandVirtual(c)">🔍 StandVirtual</button>
     </div>
     <div class="prop-grid">
       <div>
@@ -867,6 +870,48 @@ function renderVendas() {
 
 // Initial render
 renderCatalog();
+
+function openStandVirtual(car) {
+  // Map fuel types to StandVirtual IDs
+  const fuelMap = {
+    'Gasolina': 1, 'Diesel': 2, 'Híbrido': 3, 'Elétrico': 4, 'GPL': 5, 'GNV': 6, 'Mild Hybrid': 7
+  };
+  
+  // Map condition to damage ID
+  const damageMap = {
+    'Acidentado': 1, 'Não acidentado': 0, 'Desconhecido': -1
+  };
+  
+  // Estimate fuel ID (default to gasoline if not found)
+  const fuelId = fuelMap[car.f] || 1;
+  
+  // Estimate damage ID
+  const damageId = damageMap[car.c] !== undefined ? damageMap[car.c] : -1;
+  
+  // Build km range (±50k)
+  const kmMin = Math.max(0, (car.km || 0) - 50000);
+  const kmMax = (car.km || 0) + 50000;
+  
+  // Build URL
+  const params = new URLSearchParams({
+    make: car.mk || '',
+    model: car.mo || '',
+    mileage_from: kmMin,
+    mileage_to: kmMax,
+    year_from: car.y || '',
+    year_to: car.y || '',
+    fuel: fuelId,
+  });
+  
+  // Only add damage if known
+  if (damageId >= 0) {
+    params.append('damage', damageId);
+  }
+  
+  const url = `https://www.standvirtual.com/carros?${params.toString()}`;
+  window.open(url, '_blank');
+}
+
 </script>
 </body>
 </html>
