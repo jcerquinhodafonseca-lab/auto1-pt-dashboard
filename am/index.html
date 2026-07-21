@@ -913,8 +913,8 @@ function openStandVirtual(car) {
     'search[filter_float_mileage:to]': kmMax,
   };
   if (car.y) {
-    params['search[filter_float_first_registration_year:from]'] = car.y;
-    params['search[filter_float_first_registration_year:to]'] = car.y;
+    params['search[filter_float_first_registration_year:from]'] = car.y - 1;
+    params['search[filter_float_first_registration_year:to]'] = car.y + 1;
   }
   if (fuelMap[car.f]) {
     params['search[filter_enum_fuel_type]'] = fuelMap[car.f];
