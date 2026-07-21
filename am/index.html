@@ -911,6 +911,7 @@ function openStandVirtual(car) {
   const params = {
     'search[filter_float_mileage:from]': kmMin,
     'search[filter_float_mileage:to]': kmMax,
+    'search[order]': 'filter_float_price:asc',
   };
   if (car.y) {
     params['search[filter_float_first_registration_year:from]'] = car.y - 1;
