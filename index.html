@@ -4,9 +4,210 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Auto1 Portugal — Dashboard Executivo</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4">const CLIENT_DATA = {"clients": {}, "top_30": [{"merchant_id": 1000, "company": "Cliente 1", "am_name": "AM 0", "ytd_units": 150, "ytd_gmv": 500000, "issues": 0}, {"merchant_id": 1001, "company": "Cliente 2", "am_name": "AM 1", "ytd_units": 148, "ytd_gmv": 495000, "issues": 1}, {"merchant_id": 1002, "company": "Cliente 3", "am_name": "AM 2", "ytd_units": 146, "ytd_gmv": 490000, "issues": 2}, {"merchant_id": 1003, "company": "Cliente 4", "am_name": "AM 3", "ytd_units": 144, "ytd_gmv": 485000, "issues": 3}, {"merchant_id": 1004, "company": "Cliente 5", "am_name": "AM 4", "ytd_units": 142, "ytd_gmv": 480000, "issues": 4}, {"merchant_id": 1005, "company": "Cliente 6", "am_name": "AM 0", "ytd_units": 140, "ytd_gmv": 475000, "issues": 0}, {"merchant_id": 1006, "company": "Cliente 7", "am_name": "AM 1", "ytd_units": 138, "ytd_gmv": 470000, "issues": 1}, {"merchant_id": 1007, "company": "Cliente 8", "am_name": "AM 2", "ytd_units": 136, "ytd_gmv": 465000, "issues": 2}, {"merchant_id": 1008, "company": "Cliente 9", "am_name": "AM 3", "ytd_units": 134, "ytd_gmv": 460000, "issues": 3}, {"merchant_id": 1009, "company": "Cliente 10", "am_name": "AM 4", "ytd_units": 132, "ytd_gmv": 455000, "issues": 4}, {"merchant_id": 1010, "company": "Cliente 11", "am_name": "AM 0", "ytd_units": 130, "ytd_gmv": 450000, "issues": 0}, {"merchant_id": 1011, "company": "Cliente 12", "am_name": "AM 1", "ytd_units": 128, "ytd_gmv": 445000, "issues": 1}, {"merchant_id": 1012, "company": "Cliente 13", "am_name": "AM 2", "ytd_units": 126, "ytd_gmv": 440000, "issues": 2}, {"merchant_id": 1013, "company": "Cliente 14", "am_name": "AM 3", "ytd_units": 124, "ytd_gmv": 435000, "issues": 3}, {"merchant_id": 1014, "company": "Cliente 15", "am_name": "AM 4", "ytd_units": 122, "ytd_gmv": 430000, "issues": 4}, {"merchant_id": 1015, "company": "Cliente 16", "am_name": "AM 0", "ytd_units": 120, "ytd_gmv": 425000, "issues": 0}, {"merchant_id": 1016, "company": "Cliente 17", "am_name": "AM 1", "ytd_units": 118, "ytd_gmv": 420000, "issues": 1}, {"merchant_id": 1017, "company": "Cliente 18", "am_name": "AM 2", "ytd_units": 116, "ytd_gmv": 415000, "issues": 2}, {"merchant_id": 1018, "company": "Cliente 19", "am_name": "AM 3", "ytd_units": 114, "ytd_gmv": 410000, "issues": 3}, {"merchant_id": 1019, "company": "Cliente 20", "am_name": "AM 4", "ytd_units": 112, "ytd_gmv": 405000, "issues": 4}, {"merchant_id": 1020, "company": "Cliente 21", "am_name": "AM 0", "ytd_units": 110, "ytd_gmv": 400000, "issues": 0}, {"merchant_id": 1021, "company": "Cliente 22", "am_name": "AM 1", "ytd_units": 108, "ytd_gmv": 395000, "issues": 1}, {"merchant_id": 1022, "company": "Cliente 23", "am_name": "AM 2", "ytd_units": 106, "ytd_gmv": 390000, "issues": 2}, {"merchant_id": 1023, "company": "Cliente 24", "am_name": "AM 3", "ytd_units": 104, "ytd_gmv": 385000, "issues": 3}, {"merchant_id": 1024, "company": "Cliente 25", "am_name": "AM 4", "ytd_units": 102, "ytd_gmv": 380000, "issues": 4}, {"merchant_id": 1025, "company": "Cliente 26", "am_name": "AM 0", "ytd_units": 100, "ytd_gmv": 375000, "issues": 0}, {"merchant_id": 1026, "company": "Cliente 27", "am_name": "AM 1", "ytd_units": 98, "ytd_gmv": 370000, "issues": 1}, {"merchant_id": 1027, "company": "Cliente 28", "am_name": "AM 2", "ytd_units": 96, "ytd_gmv": 365000, "issues": 2}, {"merchant_id": 1028, "company": "Cliente 29", "am_name": "AM 3", "ytd_units": 94, "ytd_gmv": 360000, "issues": 3}, {"merchant_id": 1029, "company": "Cliente 30", "am_name": "AM 4", "ytd_units": 92, "ytd_gmv": 355000, "issues": 4}], "red_flags": [{"company": "ABC Autos", "issues": 5}, {"company": "XYZ Motors", "issues": 3}, {"company": "Rental Co", "issues": 3}], "untapped": [{"company": "John's Garage", "contacts": 12, "purchases": 1, "potential": 1200}, {"company": "Workshop Pro", "contacts": 10, "purchases": 2, "potential": 500}]};
-const STOCK_DATA = {"nacional_pct": 68, "importado_pct": 32, "nacional_units": 5100, "importado_units": 2400, "margem_nacional": 12.5, "margem_importado": 11.2};
-const INSIGHTS_DATA = {"top_5_growth": [{"name": "João", "trend": 5.2}, {"name": "Marta", "trend": 4.8}, {"name": "José", "trend": 4.2}, {"name": "Pedro", "trend": 3.9}, {"name": "Ana", "trend": 3.5}], "top_5_decline": [{"name": "Nuno", "trend": -8.1}, {"name": "Duarte", "trend": -5.3}, {"name": "Carlos", "trend": -3.2}, {"name": "Bruno", "trend": -2.8}, {"name": "Rafael", "trend": -2.1}], "red_flags": [{"company": "ABC Autos", "issues": 5}, {"company": "XYZ Motors", "issues": 3}, {"company": "Rental Co", "issues": 3}], "untapped": [{"company": "John's Garage", "contacts": 12, "purchases": 1, "potential": 1200}, {"company": "Workshop Pro", "contacts": 10, "purchases": 2, "potential": 500}]};
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4">
+
+
+const CLIENT_DATA = {
+  "top_30": [
+    {
+      "id": 1,
+      "name": "Merchant A",
+      "team": "Sales Team PT",
+      "units": 150,
+      "gmv": 75000.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 2,
+      "name": "Merchant B",
+      "team": "Sales Team PT",
+      "units": 120,
+      "gmv": 60000.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 3,
+      "name": "Merchant C",
+      "team": "Retail PT",
+      "units": 95,
+      "gmv": 47500.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 4,
+      "name": "Merchant D",
+      "team": "Sales Team PT",
+      "units": 85,
+      "gmv": 42500.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 5,
+      "name": "Merchant E",
+      "team": "Retail PT",
+      "units": 75,
+      "gmv": 37500.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 6,
+      "name": "Merchant F",
+      "team": "Sales Team PT",
+      "units": 65,
+      "gmv": 32500.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 7,
+      "name": "Merchant G",
+      "team": "Retail PT",
+      "units": 55,
+      "gmv": 27500.0,
+      "issues": 0,
+      "potential": "Normal"
+    },
+    {
+      "id": 8,
+      "name": "Merchant H",
+      "team": "Sales Team PT",
+      "units": 45,
+      "gmv": 22500.0,
+      "issues": 0,
+      "potential": "Normal"
+    }
+  ],
+  "by_am": {},
+  "top_10": [
+    {
+      "client_name": "Merchant A",
+      "units": 150
+    },
+    {
+      "client_name": "Merchant B",
+      "units": 120
+    },
+    {
+      "client_name": "Merchant C",
+      "units": 95
+    },
+    {
+      "client_name": "Merchant D",
+      "units": 85
+    },
+    {
+      "client_name": "Merchant E",
+      "units": 75
+    },
+    {
+      "client_name": "Merchant F",
+      "units": 65
+    },
+    {
+      "client_name": "Merchant G",
+      "units": 55
+    },
+    {
+      "client_name": "Merchant H",
+      "units": 45
+    },
+    {
+      "client_name": "Merchant I",
+      "units": 35
+    },
+    {
+      "client_name": "Merchant J",
+      "units": 25
+    }
+  ]
+};
+const STOCK_DATA = {
+  "nacional_units": 870,
+  "importado_units": 590,
+  "nacional_pct": 60,
+  "importado_pct": 40,
+  "margem_nacional": 12.5,
+  "margem_importado": 11.2,
+  "trends": [
+    {
+      "type": "Importado",
+      "team": "Logistics",
+      "month": "2026-06",
+      "units": 280
+    },
+    {
+      "type": "Nacional",
+      "team": "Sales Team",
+      "month": "2026-06",
+      "units": 450
+    },
+    {
+      "type": "Importado",
+      "team": "Logistics",
+      "month": "2026-05",
+      "units": 310
+    },
+    {
+      "type": "Nacional",
+      "team": "Sales Team",
+      "month": "2026-05",
+      "units": 420
+    }
+  ]
+};
+const INSIGHTS_DATA = {
+  "top_5_growth": [],
+  "top_5_decline": [],
+  "red_flags": [
+    {
+      "company": "Merchant D",
+      "issues": 3
+    },
+    {
+      "company": "Merchant A",
+      "issues": 2
+    },
+    {
+      "company": "Merchant C",
+      "issues": 1
+    }
+  ],
+  "untapped": [
+    {
+      "company": "Merchant Z",
+      "current": 10,
+      "potential": 45,
+      "opportunity_pct": 350.0,
+      "score": "HIGH"
+    },
+    {
+      "company": "Merchant X",
+      "current": 15,
+      "potential": 50,
+      "opportunity_pct": 233.3,
+      "score": "HIGH"
+    },
+    {
+      "company": "Merchant Y",
+      "current": 25,
+      "potential": 80,
+      "opportunity_pct": 220.0,
+      "score": "VERY_HIGH"
+    },
+    {
+      "company": "Merchant W",
+      "current": 30,
+      "potential": 90,
+      "opportunity_pct": 200.0,
+      "score": "CRITICAL"
+    }
+  ]
+};
 </script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
