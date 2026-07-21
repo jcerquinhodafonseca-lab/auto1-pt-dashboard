@@ -582,7 +582,7 @@ function openCar(idx) {
       </div>
       <div class="car-hero-price">${c.p ? '€ '+new Intl.NumberFormat('pt-PT').format(c.p) : 'Sem preço'} <span>preço auto1</span></div>
       <a class="car-hero-link" href="https://www.auto1.com/pt/app/merchant/car/${c.s}" target="_blank">Ver no site auto1 &#8599;</a>
-      <button class="car-hero-link-sv" onclick="openStandVirtual(c)">🔍 StandVirtual</button>
+      <button class="car-hero-link-sv" onclick="openStandVirtual(currentCar)">🔍 StandVirtual</button>
     </div>
     <div class="prop-grid">
       <div>
@@ -871,44 +871,44 @@ function renderVendas() {
 // Initial render
 renderCatalog();
 
+function slugify(s) {
+  return (s || '')
+    .toString()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function openStandVirtual(car) {
-  // Map fuel types to StandVirtual IDs
   const fuelMap = {
-    'Gasolina': 1, 'Diesel': 2, 'Híbrido': 3, 'Elétrico': 4, 'GPL': 5, 'GNV': 6, 'Mild Hybrid': 7
+    'Diesel': 'diesel', 'Elétrico': 'electric'
   };
-  
-  // Map condition to damage ID
-  const damageMap = {
-    'Acidentado': 1, 'Não acidentado': 0, 'Desconhecido': -1
-  };
-  
-  // Estimate fuel ID (default to gasoline if not found)
-  const fuelId = fuelMap[car.f] || 1;
-  
-  // Estimate damage ID
-  const damageId = damageMap[car.c] !== undefined ? damageMap[car.c] : -1;
-  
+
   // Build km range (±50k)
   const kmMin = Math.max(0, (car.km || 0) - 50000);
   const kmMax = (car.km || 0) + 50000;
-  
-  // Build URL
-  const params = new URLSearchParams({
-    make: car.mk || '',
-    model: car.mo || '',
-    mileage_from: kmMin,
-    mileage_to: kmMax,
-    year_from: car.y || '',
-    year_to: car.y || '',
-    fuel: fuelId,
-  });
-  
-  // Only add damage if known
-  if (damageId >= 0) {
-    params.append('damage', damageId);
+
+  const makeSlug = slugify(car.mk);
+  const path = makeSlug ? `/carros/${makeSlug}` : '/carros';
+
+  const params = {
+    'search[filter_float_mileage:from]': kmMin,
+    'search[filter_float_mileage:to]': kmMax,
+  };
+  if (car.y) {
+    params['search[filter_float_year:from]'] = car.y;
+    params['search[filter_float_year:to]'] = car.y;
   }
-  
-  const url = `https://www.standvirtual.com/carros?${params.toString()}`;
+  if (fuelMap[car.f]) {
+    params['search[filter_enum_fuel_type]'] = fuelMap[car.f];
+  }
+
+  const qs = Object.entries(params)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+  const url = `https://www.standvirtual.com${path}?${qs}`;
   window.open(url, '_blank');
 }
 
