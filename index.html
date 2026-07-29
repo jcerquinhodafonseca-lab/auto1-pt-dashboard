@@ -358,7 +358,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
   <div class="kpi-row" id="clients-indiv-kpi-row" style="padding:0 28px;margin-bottom:16px;"></div>
   <div class="grid-2" style="padding:0 28px 16px;">
     <div class="chart-card">
-      <h3>Top 20 — Maior Queda</h3>
+      <h3>Top 50 — Maior Queda</h3>
       <div class="risk-table-wrap">
         <table>
           <thead><tr><th>Cliente</th><th>AM</th><th>24m</th><th>Últ. 3m</th><th>3m Ant.</th><th>Δ%</th></tr></thead>
@@ -367,7 +367,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       </div>
     </div>
     <div class="chart-card">
-      <h3>Top 20 — Maior Crescimento</h3>
+      <h3>Top 50 — Maior Crescimento</h3>
       <div class="risk-table-wrap">
         <table>
           <thead><tr><th>Cliente</th><th>AM</th><th>24m</th><th>Últ. 3m</th><th>3m Ant.</th><th>Δ%</th></tr></thead>
@@ -951,8 +951,8 @@ function renderClientsIndividual() {
       <div class="kpi-sub">entre clientes em queda</div></div>
   `;
 
-  const decline = rows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 20);
-  const growth = rows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 20);
+  const decline = rows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 50);
+  const growth = rows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 50);
 
   document.getElementById('clients-decline-tbody').innerHTML =
     decline.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em queda.</td></tr>';
