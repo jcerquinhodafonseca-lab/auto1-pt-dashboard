@@ -181,6 +181,11 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 #clients-segment-view table{width:100%;border-collapse:collapse;font-size:13px}
 #clients-segment-view th,#clients-segment-view td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
 #clients-segment-view th{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.4px}
+#clients-segment-view th.sortable{cursor:pointer;user-select:none}
+#clients-segment-view th.sortable:hover{color:var(--blue)}
+#clients-segment-view .seg-search-row{margin-bottom:12px}
+#clients-segment-view .seg-search-row input{width:100%;max-width:340px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;background:var(--bg)}
+#clients-segment-view .seg-search-row input:focus{outline:none;border-color:var(--blue)}
 #clients-segment-view tr.link-row{cursor:pointer}
 #clients-segment-view tr.link-row:hover{background:var(--bg)}
 #clients-segment-view .am-chip{font-size:11px;color:var(--blue);font-weight:600}
@@ -192,6 +197,8 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 #clients-segment-view .seg-pagination button:disabled{opacity:0.4;cursor:default}
 #clients-segment-view .seg-pagination button:not(:disabled):hover{background:var(--bg)}
 #clients-segment-view .seg-pagination span{font-size:12px;color:var(--muted)}
+#clients-segment-view .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){#clients-segment-view .grid-2{grid-template-columns:1fr}}
 </style></head>
 <body>
 
@@ -328,15 +335,23 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       </table>
     </div>
   </div>
+  <div class="chart-card" style="margin:16px 28px 0;">
+    <h3>Segmentos por Equipa</h3>
+    <div style="position:relative;height:260px;"><canvas id="clients-team-seg-chart"></canvas></div>
+  </div>
 </div>
 <div id="clients-segment-view">
   <button class="seg-back" onclick="backToClientsTrend()">‹ Voltar a Clientes</button>
   <div class="seg-title"><span class="seg-dot" id="seg-dot"></span><span id="seg-title-text"></span></div>
   <div class="seg-desc" id="seg-desc"></div>
   <div class="stats-row" id="seg-stats"></div>
+  <div class="grid-2" id="seg-charts-row" style="margin-bottom:16px;"></div>
   <div class="seg-table-card">
+    <div class="seg-search-row">
+      <input type="text" id="seg-search" placeholder="Pesquisar por cliente ou AM..." oninput="segSearchInput()">
+    </div>
     <table>
-      <thead><tr><th>Cliente</th><th>AM</th><th>Última Compra</th><th>Sem Comprar</th><th>Estado</th></tr></thead>
+      <thead id="seg-thead"></thead>
       <tbody id="seg-tbody"></tbody>
     </table>
     <div class="seg-pagination">
@@ -615,6 +630,12 @@ function showTeams() {
 }
 
 let clientsFunnelChart = null;
+let clientsTeamSegChart = null;
+const AM_TEAM_MAP = (() => {
+  const map = {};
+  TEAMS.forEach(team => { (team.ams || []).forEach(am => { map[am.name] = team.tl; }); });
+  return map;
+})();
 
 function showClientsTrend() {
   setTopNav('clientes');
@@ -635,7 +656,6 @@ function showClientsTrend() {
 
 function renderClientsTrend() {
   const total = CLIENT_LIFECYCLE.length;
-  const dealerBase = CLIENT_LIFECYCLE.filter(c => c.db).length;
   const active6m = CLIENT_LIFECYCLE.filter(c => c.a6m).length;
   const active30d = CLIENT_LIFECYCLE.filter(c => c.a30).length;
   const activation = CLIENT_LIFECYCLE.filter(c => c.act).length;
@@ -671,10 +691,10 @@ function renderClientsTrend() {
   clientsFunnelChart = new Chart(el.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: ['Carteira Total', 'Base Ativa (Dealer Base)', 'Ativo (6m)', 'Ativo (30d)'],
+      labels: ['Carteira Total', 'Ativo (6m)', 'Ativo (30d)'],
       datasets: [{
-        data: [total, dealerBase, active6m, active30d],
-        backgroundColor: ['#B0BEC5', '#0052A5', '#FF5C00', '#2E7D32'],
+        data: [total, active6m, active30d],
+        backgroundColor: ['#B0BEC5', '#2E7D32', '#FF5C00'],
         borderRadius: 4
       }]
     },
@@ -702,6 +722,35 @@ function renderClientsTrend() {
       <td><span class="days-badge">${c.days} dias</span></td>
       <td><span class="risk-badge">Em risco</span></td>
     </tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes em risco.</td></tr>';
+
+  const teamNames = TEAMS.map(t => t.tl);
+  const segKeys = ['a6m', 'a30', 'act', 'react', 'i6m'];
+  const teamSegCounts = {};
+  teamNames.forEach(tl => { teamSegCounts[tl] = { a6m: 0, a30: 0, act: 0, react: 0, i6m: 0 }; });
+  CLIENT_LIFECYCLE.forEach(c => {
+    const tl = AM_TEAM_MAP[c.am];
+    if (!tl || !teamSegCounts[tl]) return;
+    segKeys.forEach(key => { if (c[key]) teamSegCounts[tl][key]++; });
+  });
+
+  if (clientsTeamSegChart) { clientsTeamSegChart.destroy(); clientsTeamSegChart = null; }
+  const teamSegEl = document.getElementById('clients-team-seg-chart');
+  clientsTeamSegChart = new Chart(teamSegEl.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: teamNames,
+      datasets: segKeys.map(key => ({
+        label: CLIENT_SEGMENTS[key].label,
+        data: teamNames.map(tl => teamSegCounts[tl][key]),
+        backgroundColor: CLIENT_SEGMENTS[key].color
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { display: false } } }
+    }
+  });
 }
 
 const CLIENT_SEGMENTS = {
@@ -712,8 +761,17 @@ const CLIENT_SEGMENTS = {
   i6m:   { label: 'Inativos (6 meses)', color: '#C62828',       bg: '#FFEBEE', badge: 'Em risco',  desc: 'Clientes sem qualquer compra registada nos últimos 6 meses.', filter: c => c.i6m },
 };
 
-let segCurrentKey = null, segRows = [], segPage = 0;
+let segAmChart = null, segDaysChart = null;
+let segCurrentKey = null, segBaseRows = [], segRows = [], segPage = 0;
+let segSearchQuery = '', segSortField = 'last', segSortDir = 'desc';
 const SEG_PAGE_SIZE = 50;
+const SEG_COLUMNS = [
+  { field: 'n', label: 'Cliente' },
+  { field: 'am', label: 'AM' },
+  { field: 'last', label: 'Última Compra' },
+  { field: 'days', label: 'Sem Comprar' },
+  { field: null, label: 'Estado' },
+];
 
 function showClientSegment(key) {
   segCurrentKey = key;
@@ -727,6 +785,7 @@ function backToClientsTrend() {
   document.getElementById('clients-segment-view').style.display = 'none';
   document.getElementById('clients-view').style.display = 'block';
   window.scrollTo(0, 0);
+  renderClientsTrend();
 }
 
 function renderSegmentView() {
@@ -734,12 +793,12 @@ function renderSegmentView() {
   const total = CLIENT_LIFECYCLE.length;
   const rows = CLIENT_LIFECYCLE.filter(seg.filter);
 
-  segRows = rows.slice().sort((a, b) => {
-    if (a.last && b.last) return new Date(b.last) - new Date(a.last);
-    if (a.last) return -1;
-    if (b.last) return 1;
-    return a.n.localeCompare(b.n);
-  });
+  segBaseRows = rows;
+  segSearchQuery = '';
+  segSortField = 'last';
+  segSortDir = 'desc';
+  const searchInput = document.getElementById('seg-search');
+  if (searchInput) searchInput.value = '';
 
   document.getElementById('seg-dot').style.background = seg.color;
   document.getElementById('seg-title-text').textContent = seg.label;
@@ -767,8 +826,131 @@ function renderSegmentView() {
     ${avgDays !== null ? `<div class="stat-box"><div class="val">${fmt(avgDays)}</div><div class="lbl">Dias médios desde a última compra</div></div>` : ''}
   `;
 
+  document.getElementById('seg-charts-row').innerHTML = `
+    <div class="chart-card">
+      <h3>Top AMs no Segmento</h3>
+      <div style="position:relative;height:220px;"><canvas id="seg-am-chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Dias Desde a Última Compra</h3>
+      <div style="position:relative;height:220px;"><canvas id="seg-days-chart"></canvas></div>
+    </div>
+  `;
+
+  const topAms = amNames
+    .map(am => ({ am, count: amCounts[am] }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  if (segAmChart) { segAmChart.destroy(); segAmChart = null; }
+  segAmChart = new Chart(document.getElementById('seg-am-chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: topAms.map(t => t.am),
+      datasets: [{ data: topAms.map(t => t.count), backgroundColor: seg.color, borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+    }
+  });
+
+  const buckets = [
+    { label: '0–30 dias', min: 0, max: 30 },
+    { label: '31–60 dias', min: 31, max: 60 },
+    { label: '61–90 dias', min: 61, max: 90 },
+    { label: '91–180 dias', min: 91, max: 180 },
+    { label: '181–365 dias', min: 181, max: 365 },
+    { label: '365+ dias', min: 366, max: Infinity },
+  ];
+  const bucketCounts = buckets.map(b => 0);
+  let neverCount = 0;
+  rows.forEach(c => {
+    if (!c.last) { neverCount++; return; }
+    const days = Math.floor((now - new Date(c.last)) / 86400000);
+    const idx = buckets.findIndex(b => days >= b.min && days <= b.max);
+    if (idx >= 0) bucketCounts[idx]++;
+  });
+  const daysLabels = buckets.map(b => b.label).concat(neverCount ? ['Nunca comprou'] : []);
+  const daysData = bucketCounts.concat(neverCount ? [neverCount] : []);
+
+  if (segDaysChart) { segDaysChart.destroy(); segDaysChart = null; }
+  segDaysChart = new Chart(document.getElementById('seg-days-chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: daysLabels,
+      datasets: [{ data: daysData, backgroundColor: '#0052A5', borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { beginAtZero: true, grid: { display: false } } }
+    }
+  });
+
+  applySegFilterSort();
+}
+
+function segDaysSince(c) {
+  return c.last ? Math.floor((TODAY - new Date(c.last)) / 86400000) : null;
+}
+
+function segSearchInput() {
+  segSearchQuery = (document.getElementById('seg-search').value || '').trim().toLowerCase();
+  applySegFilterSort();
+}
+
+function segSortBy(field) {
+  if (!field) return;
+  if (segSortField === field) {
+    segSortDir = segSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    segSortField = field;
+    segSortDir = (field === 'n' || field === 'am') ? 'asc' : 'desc';
+  }
+  applySegFilterSort();
+}
+
+function applySegFilterSort() {
+  let rows = segBaseRows;
+  if (segSearchQuery) {
+    rows = rows.filter(c =>
+      c.n.toLowerCase().includes(segSearchQuery) || c.am.toLowerCase().includes(segSearchQuery)
+    );
+  }
+
+  rows = rows.slice().sort((a, b) => {
+    let va, vb;
+    if (segSortField === 'n' || segSortField === 'am') {
+      va = a[segSortField].toLowerCase(); vb = b[segSortField].toLowerCase();
+      const cmp = va.localeCompare(vb);
+      return segSortDir === 'asc' ? cmp : -cmp;
+    }
+    if (segSortField === 'last') {
+      va = a.last ? new Date(a.last).getTime() : -Infinity;
+      vb = b.last ? new Date(b.last).getTime() : -Infinity;
+    } else {
+      va = segDaysSince(a); va = va === null ? Infinity : va;
+      vb = segDaysSince(b); vb = vb === null ? Infinity : vb;
+    }
+    return segSortDir === 'asc' ? va - vb : vb - va;
+  });
+
+  segRows = rows;
   segPage = 0;
+  renderSegHeader();
   renderSegmentTablePage();
+}
+
+function renderSegHeader() {
+  document.getElementById('seg-thead').innerHTML = '<tr>' + SEG_COLUMNS.map(col => {
+    if (!col.field) return `<th>${col.label}</th>`;
+    const active = segSortField === col.field;
+    const arrow = active ? (segSortDir === 'asc' ? ' ▲' : ' ▼') : '';
+    return `<th class="sortable" onclick="segSortBy('${col.field}')">${col.label}${arrow}</th>`;
+  }).join('') + '</tr>';
 }
 
 function renderSegmentTablePage() {
