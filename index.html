@@ -168,7 +168,30 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 #clients-view .risk-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;background:#FFEBEE;color:#C62828}
 #clients-view .days-badge{font-size:11px;color:var(--muted)}
 #clients-view .am-chip{font-size:11px;color:var(--blue);font-weight:600}
+#clients-view .kpi-card.clickable{cursor:pointer;transition:transform .12s,box-shadow .12s}
+#clients-view .kpi-card.clickable:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.1)}
 @media (max-width:900px){#clients-view .grid-2{grid-template-columns:1fr}}
+
+#clients-segment-view{padding:16px 28px 28px;display:none}
+#clients-segment-view .seg-back{background:none;border:none;color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:0;margin-bottom:14px}
+#clients-segment-view .seg-back:hover{text-decoration:underline}
+#clients-segment-view .seg-title{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
+#clients-segment-view .seg-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+#clients-segment-view .seg-desc{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:16px}
+#clients-segment-view table{width:100%;border-collapse:collapse;font-size:13px}
+#clients-segment-view th,#clients-segment-view td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
+#clients-segment-view th{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.4px}
+#clients-segment-view tr.link-row{cursor:pointer}
+#clients-segment-view tr.link-row:hover{background:var(--bg)}
+#clients-segment-view .am-chip{font-size:11px;color:var(--blue);font-weight:600}
+#clients-segment-view .days-badge{font-size:11px;color:var(--muted)}
+#clients-segment-view .seg-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px}
+#clients-segment-view .seg-table-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+#clients-segment-view .seg-pagination{display:flex;align-items:center;gap:12px;margin-top:14px}
+#clients-segment-view .seg-pagination button{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600}
+#clients-segment-view .seg-pagination button:disabled{opacity:0.4;cursor:default}
+#clients-segment-view .seg-pagination button:not(:disabled):hover{background:var(--bg)}
+#clients-segment-view .seg-pagination span{font-size:12px;color:var(--muted)}
 </style></head>
 <body>
 
@@ -303,6 +326,23 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
         <thead><tr><th>Cliente</th><th>AM</th><th>Última Compra</th><th>Sem Comprar</th><th>Estado</th></tr></thead>
         <tbody id="clients-risk-tbody"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+<div id="clients-segment-view">
+  <button class="seg-back" onclick="backToClientsTrend()">‹ Voltar a Clientes</button>
+  <div class="seg-title"><span class="seg-dot" id="seg-dot"></span><span id="seg-title-text"></span></div>
+  <div class="seg-desc" id="seg-desc"></div>
+  <div class="stats-row" id="seg-stats"></div>
+  <div class="seg-table-card">
+    <table>
+      <thead><tr><th>Cliente</th><th>AM</th><th>Última Compra</th><th>Sem Comprar</th><th>Estado</th></tr></thead>
+      <tbody id="seg-tbody"></tbody>
+    </table>
+    <div class="seg-pagination">
+      <button id="seg-prev-btn" onclick="segPrev()">‹ Anterior</button>
+      <span id="seg-page-info"></span>
+      <button id="seg-next-btn" onclick="segNext()">Seguinte ›</button>
     </div>
   </div>
 </div>
@@ -566,6 +606,7 @@ function showTeams() {
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('client-view').style.display = 'none';
   document.getElementById('clients-view').style.display = 'none';
+  document.getElementById('clients-segment-view').style.display = 'none';
   document.getElementById('breadcrumb').style.display = 'none';
   if (clientChart) { clientChart.destroy(); clientChart = null; }
   currentTeamIdx = -1; currentAmIdx = -1;
@@ -585,6 +626,7 @@ function showClientsTrend() {
   document.getElementById('client-view').style.display = 'none';
   document.getElementById('breadcrumb').style.display = 'none';
   document.getElementById('clients-view').style.display = 'block';
+  document.getElementById('clients-segment-view').style.display = 'none';
   if (clientChart) { clientChart.destroy(); clientChart = null; }
   currentTeamIdx = -1; currentAmIdx = -1;
   window.scrollTo(0, 0);
@@ -602,23 +644,23 @@ function renderClientsTrend() {
   const pct = n => total ? Math.round(n / total * 100) : 0;
 
   document.getElementById('clients-kpi-row').innerHTML = `
-    <div class="kpi-card"><div class="kpi-bar" style="background:#2E7D32"></div>
+    <div class="kpi-card clickable" onclick="showClientSegment('a6m')"><div class="kpi-bar" style="background:#2E7D32"></div>
       <div class="kpi-label">Ativos (6 meses)</div>
       <div class="kpi-val">${fmt(active6m)}</div>
       <div class="kpi-sub">${pct(active6m)}% da carteira</div></div>
-    <div class="kpi-card"><div class="kpi-bar" style="background:var(--orange)"></div>
+    <div class="kpi-card clickable" onclick="showClientSegment('a30')"><div class="kpi-bar" style="background:var(--orange)"></div>
       <div class="kpi-label">Ativos (30 dias)</div>
       <div class="kpi-val">${fmt(active30d)}</div>
       <div class="kpi-sub">${pct(active30d)}% da carteira</div></div>
-    <div class="kpi-card"><div class="kpi-bar" style="background:#1565C0"></div>
+    <div class="kpi-card clickable" onclick="showClientSegment('act')"><div class="kpi-bar" style="background:#1565C0"></div>
       <div class="kpi-label">Ativação (24m)</div>
       <div class="kpi-val">${fmt(activation)}</div>
       <div class="kpi-sub">1ª compra recente</div></div>
-    <div class="kpi-card"><div class="kpi-bar" style="background:#6A1B9A"></div>
+    <div class="kpi-card clickable" onclick="showClientSegment('react')"><div class="kpi-bar" style="background:#6A1B9A"></div>
       <div class="kpi-label">Reativados</div>
       <div class="kpi-val">${fmt(reactivation)}</div>
       <div class="kpi-sub">voltaram após ≥6m parados</div></div>
-    <div class="kpi-card"><div class="kpi-bar" style="background:#C62828"></div>
+    <div class="kpi-card clickable" onclick="showClientSegment('i6m')"><div class="kpi-bar" style="background:#C62828"></div>
       <div class="kpi-label">Inativos (6 meses)</div>
       <div class="kpi-val">${fmt(inactive6m)}</div>
       <div class="kpi-sub">${pct(inactive6m)}% da carteira — em risco</div></div>
@@ -662,6 +704,107 @@ function renderClientsTrend() {
     </tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes em risco.</td></tr>';
 }
 
+const CLIENT_SEGMENTS = {
+  a6m:   { label: 'Ativos (6 meses)',   color: '#2E7D32',       bg: '#E8F5E9', badge: 'Ativo',     desc: 'Clientes com pelo menos uma compra registada nos últimos 6 meses.', filter: c => c.a6m },
+  a30:   { label: 'Ativos (30 dias)',   color: 'var(--orange)', bg: '#FFF3EE', badge: 'Ativo',     desc: 'Clientes com pelo menos uma compra registada nos últimos 30 dias.', filter: c => c.a30 },
+  act:   { label: 'Ativação (24m)',     color: '#1565C0',       bg: '#E3F2FD', badge: 'Novo',      desc: 'Clientes com a primeira compra registada nos últimos 24 meses.', filter: c => c.act },
+  react: { label: 'Reativados',         color: '#6A1B9A',       bg: '#F3E5F5', badge: 'Reativado', desc: 'Clientes que voltaram a comprar depois de um período de 6 ou mais meses sem atividade.', filter: c => c.react },
+  i6m:   { label: 'Inativos (6 meses)', color: '#C62828',       bg: '#FFEBEE', badge: 'Em risco',  desc: 'Clientes sem qualquer compra registada nos últimos 6 meses.', filter: c => c.i6m },
+};
+
+let segCurrentKey = null, segRows = [], segPage = 0;
+const SEG_PAGE_SIZE = 50;
+
+function showClientSegment(key) {
+  segCurrentKey = key;
+  document.getElementById('clients-view').style.display = 'none';
+  document.getElementById('clients-segment-view').style.display = 'block';
+  window.scrollTo(0, 0);
+  renderSegmentView();
+}
+
+function backToClientsTrend() {
+  document.getElementById('clients-segment-view').style.display = 'none';
+  document.getElementById('clients-view').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function renderSegmentView() {
+  const seg = CLIENT_SEGMENTS[segCurrentKey];
+  const total = CLIENT_LIFECYCLE.length;
+  const rows = CLIENT_LIFECYCLE.filter(seg.filter);
+
+  segRows = rows.slice().sort((a, b) => {
+    if (a.last && b.last) return new Date(b.last) - new Date(a.last);
+    if (a.last) return -1;
+    if (b.last) return 1;
+    return a.n.localeCompare(b.n);
+  });
+
+  document.getElementById('seg-dot').style.background = seg.color;
+  document.getElementById('seg-title-text').textContent = seg.label;
+  document.getElementById('seg-desc').textContent = seg.desc;
+
+  const amCounts = {};
+  rows.forEach(c => { amCounts[c.am] = (amCounts[c.am] || 0) + 1; });
+  const amNames = Object.keys(amCounts);
+  let topAm = '—', topAmCount = 0;
+  amNames.forEach(am => { if (amCounts[am] > topAmCount) { topAm = am; topAmCount = amCounts[am]; } });
+
+  const withLast = rows.filter(c => c.last);
+  const now = TODAY;
+  const avgDays = withLast.length
+    ? Math.round(withLast.reduce((sum, c) => sum + (now - new Date(c.last)) / 86400000, 0) / withLast.length)
+    : null;
+
+  const pct = total ? Math.round(rows.length / total * 100) : 0;
+
+  document.getElementById('seg-stats').innerHTML = `
+    <div class="stat-box"><div class="val">${fmt(rows.length)}</div><div class="lbl">Clientes no segmento</div></div>
+    <div class="stat-box"><div class="val">${pct}%</div><div class="lbl">Da carteira total</div></div>
+    <div class="stat-box"><div class="val">${fmt(amNames.length)}</div><div class="lbl">AMs distintos</div></div>
+    <div class="stat-box"><div class="val" style="font-size:15px;">${topAm}</div><div class="lbl">Top AM (${fmt(topAmCount)} clientes)</div></div>
+    ${avgDays !== null ? `<div class="stat-box"><div class="val">${fmt(avgDays)}</div><div class="lbl">Dias médios desde a última compra</div></div>` : ''}
+  `;
+
+  segPage = 0;
+  renderSegmentTablePage();
+}
+
+function renderSegmentTablePage() {
+  const seg = CLIENT_SEGMENTS[segCurrentKey];
+  const start = segPage * SEG_PAGE_SIZE;
+  const pageRows = segRows.slice(start, start + SEG_PAGE_SIZE);
+  const now = TODAY;
+
+  document.getElementById('seg-tbody').innerHTML = pageRows.map(c => {
+    const days = c.last ? Math.floor((now - new Date(c.last)) / 86400000) : null;
+    return `
+    <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
+      <td>${c.n}</td>
+      <td><span class="am-chip">${c.am}</span></td>
+      <td>${c.last ? new Date(c.last).toLocaleDateString('pt-PT') : '—'}</td>
+      <td>${days !== null ? `<span class="days-badge">${days} dias</span>` : '—'}</td>
+      <td><span class="seg-badge" style="background:${seg.bg};color:${seg.color}">${seg.badge}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes neste segmento.</td></tr>';
+
+  const shownEnd = Math.min(start + SEG_PAGE_SIZE, segRows.length);
+  document.getElementById('seg-page-info').textContent = segRows.length
+    ? `A mostrar ${start + 1}–${shownEnd} de ${segRows.length}`
+    : '';
+  document.getElementById('seg-prev-btn').disabled = segPage === 0;
+  document.getElementById('seg-next-btn').disabled = shownEnd >= segRows.length;
+}
+
+function segPrev() {
+  if (segPage > 0) { segPage--; renderSegmentTablePage(); window.scrollTo(0, 0); }
+}
+
+function segNext() {
+  if ((segPage + 1) * SEG_PAGE_SIZE < segRows.length) { segPage++; renderSegmentTablePage(); window.scrollTo(0, 0); }
+}
+
 function showTeamView(idx) {
   setTopNav('equipas');
   currentTeamIdx = idx;
@@ -673,6 +816,7 @@ function showTeamView(idx) {
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('client-view').style.display = 'none';
   document.getElementById('clients-view').style.display = 'none';
+  document.getElementById('clients-segment-view').style.display = 'none';
   if (clientChart) { clientChart.destroy(); clientChart = null; }
   document.getElementById('breadcrumb').style.display = 'flex';
   document.getElementById('bc-team').textContent = 'Equipa ' + t.tl;
@@ -767,6 +911,7 @@ function showAMDetail(teamIdx, amIdx) {
   document.getElementById('detail-view').style.display = 'block';
   document.getElementById('client-view').style.display = 'none';
   document.getElementById('clients-view').style.display = 'none';
+  document.getElementById('clients-segment-view').style.display = 'none';
   if (clientChart) { clientChart.destroy(); clientChart = null; }
   document.querySelector('.bc-am-sep').style.display = 'inline';
   document.getElementById('bc-am').style.display = 'inline';
