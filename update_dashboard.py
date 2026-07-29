@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Rebuilds TEAMS / ML / MONTHS / CLIENT_DATA / VIEWS_DATA in index.html from
-5 Redash queries. Run this instead of hand-editing the dashboard.
+Rebuilds TEAMS / ML / MONTHS / CLIENT_DATA / VIEWS_DATA / CLIENT_LIFECYCLE in
+index.html from 6 Redash queries. Run this instead of hand-editing the dashboard.
 
 The AM -> team-lead / color roster below is organizational metadata that is
 not stored anywhere in the BI warehouse (confirmed: none of the queries used
@@ -26,6 +26,7 @@ Q_CALLS = 130053
 Q_CLAIMS = 130088
 Q_VIEWS = 131528
 Q_DAILY = 134517
+Q_LIFECYCLE = 135246
 
 if not API_KEY:
     sys.exit("REDASH_API_KEY environment variable is not set.")
@@ -131,8 +132,9 @@ calls = fetch_rows(Q_CALLS)
 claims = fetch_rows(Q_CLAIMS)
 views = fetch_rows(Q_VIEWS)
 daily = fetch_rows(Q_DAILY)
+lifecycle = fetch_rows(Q_LIFECYCLE)
 print(f"purchases={len(purchases)} calls={len(calls)} claims={len(claims)} "
-      f"views={len(views)} daily={len(daily)} rows")
+      f"views={len(views)} daily={len(daily)} lifecycle={len(lifecycle)} rows")
 
 unknown_ams = set()
 
@@ -257,6 +259,20 @@ for (tl, color), ams in teams_map.items():
     })
 TEAMS.sort(key=lambda t: -t["total"])
 
+# --- assemble CLIENT_LIFECYCLE (one row per am/merchant, from Q_LIFECYCLE) ---
+CLIENT_LIFECYCLE = [{
+    "am": r["am_name"],
+    "mid": str(r["merchant_id"]),
+    "n": r.get("merchant_name") or "",
+    "last": str(r["last_deal_datetime"])[:10] if r.get("last_deal_datetime") else None,
+    "db": bool(r.get("dealer_base")),
+    "act": bool(r.get("activation")),
+    "react": bool(r.get("reactivation")),
+    "a30": bool(r.get("active_last_30_days")),
+    "a6m": bool(r.get("active_last_6_months")),
+    "i6m": bool(r.get("inactive_last_6_months")),
+} for r in lifecycle]
+
 if unknown_ams:
     print(f"NOTE: {len(unknown_ams)} name(s) matched the Redash am_pt filter but are not "
           f"in the AM_TEAM roster (other departments/countries sharing the same position_id, "
@@ -279,6 +295,7 @@ html = replace_const_line(html, "ML", json.dumps(ML, ensure_ascii=False))
 html = replace_const_line(html, "MONTHS", json.dumps(MONTHS, ensure_ascii=False))
 html = replace_const_line(html, "CLIENT_DATA", json.dumps(CLIENT_DATA, ensure_ascii=False))
 html = replace_const_line(html, "VIEWS_DATA", json.dumps(VIEWS_DATA, ensure_ascii=False))
+html = replace_const_line(html, "CLIENT_LIFECYCLE", json.dumps(CLIENT_LIFECYCLE, ensure_ascii=False))
 
 # Replace hardcoded cutoff dates with a dynamic reference to the last
 # generated month, so future runs never need a manual date edit.
@@ -292,4 +309,5 @@ with open(INDEX_HTML, "w", encoding="utf-8") as f:
 
 print(f"Updated {INDEX_HTML}: {len(TEAMS)} teams, {len(all_am_names)} AMs, "
       f"{sum(len(v) for v in clients_out.values())} client records, "
-      f"{len(VIEWS_DATA)} merchants with views.")
+      f"{len(VIEWS_DATA)} merchants with views, "
+      f"{len(CLIENT_LIFECYCLE)} lifecycle records.")
