@@ -281,7 +281,6 @@ CLIENT_LIFECYCLE = [{
 seg_keys = ["a30", "a6m", "act", "react", "i6m"]
 seg_counts = {k: [0] * 24 for k in seg_keys}
 total_counts = [0] * 24
-team_active6m_counts = {}  # tl -> [24]
 for r in lifecycle_monthly:
     mo = str(r["month"])[:10]
     if mo not in MONTH_INDEX:
@@ -299,16 +298,11 @@ for r in lifecycle_monthly:
         seg_counts["react"][idx] += 1
     if r.get("inactive_last_6_months"):
         seg_counts["i6m"][idx] += 1
-    tl_color = team_for(r["am_name"])
-    if tl_color and r.get("active_last_6_months"):
-        tl = tl_color[0]
-        team_active6m_counts.setdefault(tl, [0] * 24)[idx] += 1
 
 LIFECYCLE_MONTHLY = {
     "months": MONTHS,
     "total": total_counts,
     "segments": seg_counts,
-    "teams": team_active6m_counts,
 }
 
 # --- track individual clients across months, to compute flow metrics that a
