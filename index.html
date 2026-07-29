@@ -159,10 +159,12 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 #clients-view .kpi-label{font-size:10px;font-weight:700;letter-spacing:0.6px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 #clients-view .kpi-val{font-size:26px;font-weight:800;line-height:1}
 #clients-view .kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
-#clients-view .grid-2{display:grid;grid-template-columns:1.1fr 1.4fr;gap:16px;align-items:start}
+#clients-view .grid-2{display:grid;grid-template-columns:1.1fr 1.4fr;gap:16px;align-items:stretch}
+#clients-view .grid-2 .chart-card{display:flex;flex-direction:column}
+#clients-view .risk-table-wrap{max-height:284px;overflow-y:auto}
 #clients-view table{width:100%;border-collapse:collapse;font-size:13px}
 #clients-view th,#clients-view td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
-#clients-view th{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.4px}
+#clients-view th{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.4px;position:sticky;top:0;background:var(--card);z-index:1}
 #clients-view tr.link-row{cursor:pointer}
 #clients-view tr.link-row:hover{background:var(--bg)}
 #clients-view .risk-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;background:#FFEBEE;color:#C62828}
@@ -329,10 +331,12 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
     </div>
     <div class="chart-card">
       <h3>Clientes em Risco (sem compra há 2+ meses)</h3>
-      <table>
-        <thead><tr><th>Cliente</th><th>AM</th><th>Última Compra</th><th>Sem Comprar</th><th>Estado</th></tr></thead>
-        <tbody id="clients-risk-tbody"></tbody>
-      </table>
+      <div class="risk-table-wrap">
+        <table>
+          <thead><tr><th>Cliente</th><th>AM</th><th>Última Compra</th><th>Sem Comprar</th><th>Estado</th></tr></thead>
+          <tbody id="clients-risk-tbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
   <div class="chart-card" style="margin:16px 28px 0;">
