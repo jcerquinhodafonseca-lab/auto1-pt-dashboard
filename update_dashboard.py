@@ -27,6 +27,7 @@ Q_CLAIMS = 130088
 Q_VIEWS = 131528
 Q_DAILY = 134517
 Q_LIFECYCLE = 135246
+Q_LIFECYCLE_MONTHLY = 135275
 
 if not API_KEY:
     sys.exit("REDASH_API_KEY environment variable is not set.")
@@ -133,8 +134,10 @@ claims = fetch_rows(Q_CLAIMS)
 views = fetch_rows(Q_VIEWS)
 daily = fetch_rows(Q_DAILY)
 lifecycle = fetch_rows(Q_LIFECYCLE)
+lifecycle_monthly = fetch_rows(Q_LIFECYCLE_MONTHLY)
 print(f"purchases={len(purchases)} calls={len(calls)} claims={len(claims)} "
-      f"views={len(views)} daily={len(daily)} lifecycle={len(lifecycle)} rows")
+      f"views={len(views)} daily={len(daily)} lifecycle={len(lifecycle)} "
+      f"lifecycle_monthly={len(lifecycle_monthly)} rows")
 
 unknown_ams = set()
 
@@ -273,6 +276,41 @@ CLIENT_LIFECYCLE = [{
     "i6m": bool(r.get("inactive_last_6_months")),
 } for r in lifecycle]
 
+# --- assemble LIFECYCLE_MONTHLY (pre-aggregated, so the monthly history stays
+# small: 24 numbers per series instead of ~90k raw client/month rows) ---
+seg_keys = ["a30", "a6m", "act", "react", "i6m"]
+seg_counts = {k: [0] * 24 for k in seg_keys}
+total_counts = [0] * 24
+team_active6m_counts = {}  # tl -> [24]
+for r in lifecycle_monthly:
+    mo = str(r["month"])[:10]
+    if mo not in MONTH_INDEX:
+        continue
+    idx = MONTH_INDEX[mo]
+    if r.get("dealer_base"):
+        total_counts[idx] += 1
+    if r.get("active_last_30_days"):
+        seg_counts["a30"][idx] += 1
+    if r.get("active_last_6_months"):
+        seg_counts["a6m"][idx] += 1
+    if r.get("activation"):
+        seg_counts["act"][idx] += 1
+    if r.get("reactivation"):
+        seg_counts["react"][idx] += 1
+    if r.get("inactive_last_6_months"):
+        seg_counts["i6m"][idx] += 1
+    tl_color = team_for(r["am_name"])
+    if tl_color and r.get("active_last_6_months"):
+        tl = tl_color[0]
+        team_active6m_counts.setdefault(tl, [0] * 24)[idx] += 1
+
+LIFECYCLE_MONTHLY = {
+    "months": MONTHS,
+    "total": total_counts,
+    "segments": seg_counts,
+    "teams": team_active6m_counts,
+}
+
 if unknown_ams:
     print(f"NOTE: {len(unknown_ams)} name(s) matched the Redash am_pt filter but are not "
           f"in the AM_TEAM roster (other departments/countries sharing the same position_id, "
@@ -296,6 +334,7 @@ html = replace_const_line(html, "MONTHS", json.dumps(MONTHS, ensure_ascii=False)
 html = replace_const_line(html, "CLIENT_DATA", json.dumps(CLIENT_DATA, ensure_ascii=False))
 html = replace_const_line(html, "VIEWS_DATA", json.dumps(VIEWS_DATA, ensure_ascii=False))
 html = replace_const_line(html, "CLIENT_LIFECYCLE", json.dumps(CLIENT_LIFECYCLE, ensure_ascii=False))
+html = replace_const_line(html, "LIFECYCLE_MONTHLY", json.dumps(LIFECYCLE_MONTHLY, ensure_ascii=False))
 
 # Replace hardcoded cutoff dates with a dynamic reference to the last
 # generated month, so future runs never need a manual date edit.
@@ -310,4 +349,5 @@ with open(INDEX_HTML, "w", encoding="utf-8") as f:
 print(f"Updated {INDEX_HTML}: {len(TEAMS)} teams, {len(all_am_names)} AMs, "
       f"{sum(len(v) for v in clients_out.values())} client records, "
       f"{len(VIEWS_DATA)} merchants with views, "
-      f"{len(CLIENT_LIFECYCLE)} lifecycle records.")
+      f"{len(CLIENT_LIFECYCLE)} lifecycle records, "
+      f"{len(lifecycle_monthly)} monthly lifecycle rows aggregated into 24-month history.")
