@@ -990,7 +990,7 @@ function renderRiskTable() {
   const risk = riskAllRows.slice(0, riskTopN);
   document.getElementById('clients-risk-tbody').innerHTML = risk.map(c => `
     <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
-      <td>${c.n}</td>
+      <td>${c.n} <span style="color:var(--muted);font-weight:400;">(${c.mid})</span></td>
       <td><span class="am-chip">${c.am}</span></td>
       <td>${new Date(c.last).toLocaleDateString('pt-PT')}</td>
       <td><span class="days-badge">${c.days} dias</span></td>
@@ -1035,7 +1035,7 @@ function clientRowHtml(c) {
   const pctColor = c.pctChange < 0 ? '#C62828' : '#2E7D32';
   return `
     <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
-      <td>${c.n}${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
+      <td>${c.n} <span style="color:var(--muted);font-weight:400;">(${c.mid})</span>${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
       <td><span class="am-chip">${c.am}</span></td>
       <td>${fmt(c.total24m)}</td>
       <td>${fmt(c.recent)}</td>
@@ -1101,7 +1101,7 @@ function renderClientsIndividual() {
         legend: { display: false },
         tooltip: { callbacks: { label: ctx => {
           const c = ctx.raw.c;
-          return `${c.n} (${c.am}): ${fmt(c.total24m)} unid. / 24m, ${c.pctChange >= 0 ? '+' : ''}${c.pctChange.toFixed(0)}%`;
+          return `${c.n} (${c.mid}) (${c.am}): ${fmt(c.total24m)} unid. / 24m, ${c.pctChange >= 0 ? '+' : ''}${c.pctChange.toFixed(0)}%`;
         } } }
       },
       onClick: (evt, elements) => {
@@ -1140,7 +1140,7 @@ function originMixRowHtml(c) {
   const prefColor = prefColorOf(c.pref);
   return `
     <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
-      <td>${c.n}${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
+      <td>${c.n} <span style="color:var(--muted);font-weight:400;">(${c.mid})</span>${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
       <td><span class="am-chip">${c.am}</span></td>
       <td>${fmt(c.total24m)}</td>
       <td>${fmt(c.nat)}</td>
@@ -1214,7 +1214,7 @@ function computeClientsToRecover() {
 function recoverRowHtml(c) {
   return `
     <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
-      <td>${c.n}${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
+      <td>${c.n} <span style="color:var(--muted);font-weight:400;">(${c.mid})</span>${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
       <td><span class="am-chip">${c.am}</span></td>
       <td>${c.avgActive.toFixed(1)}</td>
       <td>${fmt(c.total24m)}</td>
@@ -1517,7 +1517,7 @@ function renderSegmentTablePage() {
     const days = c.last ? Math.floor((now - new Date(c.last)) / 86400000) : null;
     return `
     <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
-      <td>${c.n}</td>
+      <td>${c.n} <span style="color:var(--muted);font-weight:400;">(${c.mid})</span></td>
       <td><span class="am-chip">${c.am}</span></td>
       <td>${c.last ? new Date(c.last).toLocaleDateString('pt-PT') : '—'}</td>
       <td>${days !== null ? `<span class="days-badge">${days} dias</span>` : '—'}</td>
@@ -2405,7 +2405,7 @@ function showClientDetail(amName, merchantId) {
 
   document.querySelector('.bc-client-sep').style.display = 'inline';
   document.getElementById('bc-client').style.display = 'inline';
-  document.getElementById('bc-client').textContent = client.n;
+  document.getElementById('bc-client').innerHTML = `${client.n} <span style="color:var(--muted);font-weight:400;">(${merchantId})</span>`;
   document.getElementById('bc-am').onclick = () => showAMDetailFromClient();
 
   const u24 = client.u.reduce((a,b)=>a+b,0);
@@ -2417,7 +2417,7 @@ function showClientDetail(amName, merchantId) {
     ? `Compras através de: ${client.breakdown.map(b => `${b.am} (${b.total} un.)`).join(', ')}`
     : `Cliente de ${amName}`;
   document.getElementById('client-header').innerHTML = `
-    <div style="font-size:20px;font-weight:800;color:var(--dark);margin-bottom:4px;">${client.n}</div>
+    <div style="font-size:20px;font-weight:800;color:var(--dark);margin-bottom:4px;">${client.n} <span style="color:var(--muted);font-weight:400;font-size:14px;">(${merchantId})</span></div>
     <div style="font-size:12px;color:var(--muted);">${amInfoLine}</div>`;
 
   const clientViews = VIEWS_DATA[String(merchantId)] || new Array(24).fill(0);
