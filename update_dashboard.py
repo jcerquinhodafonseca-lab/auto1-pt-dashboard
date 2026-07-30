@@ -305,88 +305,6 @@ LIFECYCLE_MONTHLY = {
     "segments": seg_counts,
 }
 
-# --- track individual clients across months, to compute flow metrics that a
-# per-month stock count can't show (churn velocity, win-back, retention) ---
-client_month_flags = {}  # mid -> {month_idx: {"a6m": bool, "act": bool}}
-for r in lifecycle_monthly:
-    mo = str(r["month"])[:10]
-    if mo not in MONTH_INDEX:
-        continue
-    idx = MONTH_INDEX[mo]
-    mid = str(r["merchant_id"])
-    client_month_flags.setdefault(mid, {})[idx] = {
-        "a6m": bool(r.get("active_last_6_months")),
-        "act": bool(r.get("activation")),
-    }
-
-# CHURN_MONTHLY: of clients active (6m) in month idx-1, % no longer active in idx
-churned_counts = [0] * 24
-active_prior_counts = [0] * 24
-for flags in client_month_flags.values():
-    for idx in range(1, 24):
-        prev, cur = flags.get(idx - 1), flags.get(idx)
-        if prev is None or cur is None or not prev["a6m"]:
-            continue
-        active_prior_counts[idx] += 1
-        if not cur["a6m"]:
-            churned_counts[idx] += 1
-
-CHURN_MONTHLY = {
-    "months": ML[1:],
-    "churned": churned_counts[1:],
-    "active_prior": active_prior_counts[1:],
-    "rate": [
-        round(churned_counts[i] / active_prior_counts[i] * 100, 1) if active_prior_counts[i] else 0.0
-        for i in range(1, 24)
-    ],
-}
-
-# WINBACK_RATE: of clients who just churned (a6m True -> False), % that become
-# a6m-active again within the next 3/6/12 months
-winback_windows = {"3m": 3, "6m": 6, "12m": 12}
-winback_eligible = {k: 0 for k in winback_windows}
-winback_recovered = {k: 0 for k in winback_windows}
-for flags in client_month_flags.values():
-    for idx in range(1, 24):
-        prev, cur = flags.get(idx - 1), flags.get(idx)
-        if prev is None or cur is None or not (prev["a6m"] and not cur["a6m"]):
-            continue
-        for key, n in winback_windows.items():
-            if idx + n > 23:
-                continue  # not enough months left in the window to judge this cohort
-            winback_eligible[key] += 1
-            if any(flags.get(f, {}).get("a6m") for f in range(idx + 1, idx + n + 1)):
-                winback_recovered[key] += 1
-
-WINBACK_RATE = {}
-for key in winback_windows:
-    n = winback_eligible[key]
-    WINBACK_RATE[f"rate_{key}"] = round(winback_recovered[key] / n * 100, 1) if n else 0.0
-    WINBACK_RATE[f"n_{key}"] = n
-
-# RETENTION_CURVE: of clients activated in month idx, % still a6m-active at idx+offset
-retention_offsets = list(range(1, 12))
-retention_eligible = {o: 0 for o in retention_offsets}
-retention_retained = {o: 0 for o in retention_offsets}
-for flags in client_month_flags.values():
-    for act_idx in (idx for idx, f in flags.items() if f["act"]):
-        for offset in retention_offsets:
-            future = flags.get(act_idx + offset)
-            if future is None:
-                continue
-            retention_eligible[offset] += 1
-            if future["a6m"]:
-                retention_retained[offset] += 1
-
-RETENTION_CURVE = {
-    "offsets": retention_offsets,
-    "pct": [
-        round(retention_retained[o] / retention_eligible[o] * 100, 1) if retention_eligible[o] else 0.0
-        for o in retention_offsets
-    ],
-    "n": [retention_eligible[o] for o in retention_offsets],
-}
-
 if unknown_ams:
     print(f"NOTE: {len(unknown_ams)} name(s) matched the Redash am_pt filter but are not "
           f"in the AM_TEAM roster (other departments/countries sharing the same position_id, "
@@ -411,9 +329,6 @@ html = replace_const_line(html, "CLIENT_DATA", json.dumps(CLIENT_DATA, ensure_as
 html = replace_const_line(html, "VIEWS_DATA", json.dumps(VIEWS_DATA, ensure_ascii=False))
 html = replace_const_line(html, "CLIENT_LIFECYCLE", json.dumps(CLIENT_LIFECYCLE, ensure_ascii=False))
 html = replace_const_line(html, "LIFECYCLE_MONTHLY", json.dumps(LIFECYCLE_MONTHLY, ensure_ascii=False))
-html = replace_const_line(html, "CHURN_MONTHLY", json.dumps(CHURN_MONTHLY, ensure_ascii=False))
-html = replace_const_line(html, "WINBACK_RATE", json.dumps(WINBACK_RATE, ensure_ascii=False))
-html = replace_const_line(html, "RETENTION_CURVE", json.dumps(RETENTION_CURVE, ensure_ascii=False))
 
 # Replace hardcoded cutoff dates with a dynamic reference to the last
 # generated month, so future runs never need a manual date edit.
