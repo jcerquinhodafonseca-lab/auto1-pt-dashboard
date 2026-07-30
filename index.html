@@ -729,6 +729,7 @@ const DECLINE_GROWTH_COLS = [
   { key: 'recent', label: 'Últ. 3m' },
   { key: 'prior', label: '3m Ant.' },
   { key: 'pctChange', label: 'Δ%' },
+  { key: 'pref', label: 'Tendência Stock' },
 ];
 const RECOVER_COLS = [
   { key: 'n', label: 'Cliente' },
@@ -736,6 +737,7 @@ const RECOVER_COLS = [
   { key: 'avgActive', label: 'Média/mês (ativo)' },
   { key: 'total24m', label: 'Total 24m' },
   { key: 'monthsInactive', label: 'Meses Inativo' },
+  { key: 'pref', label: 'Tendência Stock' },
 ];
 const ORIGIN_MIX_COLS = [
   { key: 'n', label: 'Cliente' },
@@ -787,13 +789,13 @@ function sortGrowth(key) {
 function renderDeclineTable() {
   renderSortableHead('clients-decline-thead', DECLINE_GROWTH_COLS, declineSortState, 'sortDecline');
   document.getElementById('clients-decline-tbody').innerHTML =
-    declineRows.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em queda.</td></tr>';
+    declineRows.map(clientRowHtml).join('') || '<tr><td colspan="7" style="color:var(--muted);">Sem clientes em queda.</td></tr>';
 }
 
 function renderGrowthTable() {
   renderSortableHead('clients-growth-thead', DECLINE_GROWTH_COLS, growthSortState, 'sortGrowth');
   document.getElementById('clients-growth-tbody').innerHTML =
-    growthRows.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em crescimento.</td></tr>';
+    growthRows.map(clientRowHtml).join('') || '<tr><td colspan="7" style="color:var(--muted);">Sem clientes em crescimento.</td></tr>';
 }
 
 function showClientsTrend() {
@@ -927,6 +929,15 @@ function renderClientsTrend() {
   renderClientsRecover();
 }
 
+function clientOriginPref(c) {
+  const nat = (c.un || []).reduce((a, b) => a + b, 0);
+  const imp = (c.ui || []).reduce((a, b) => a + b, 0);
+  const classified = nat + imp;
+  if (classified <= 0) return 'Sem dados';
+  const natPct = nat / classified * 100;
+  return natPct >= 90 ? 'Stock PT' : natPct <= 10 ? 'Stock Importação' : 'Misto';
+}
+
 function computeClientTrends() {
   const rows = [];
   Object.keys(CLIENT_DATA.clients).forEach(am => {
@@ -940,10 +951,14 @@ function computeClientTrends() {
       if (total24m <= 0 || prior <= 0) return;
       const delta = recent - prior;
       const pctChange = delta / prior * 100;
-      rows.push({ am, mid, n: c.n, recent, prior, delta, pctChange, total24m, claims: (c.k || []).length });
+      rows.push({ am, mid, n: c.n, recent, prior, delta, pctChange, total24m, claims: (c.k || []).length, pref: clientOriginPref(c) });
     });
   });
   return rows;
+}
+
+function prefColorOf(pref) {
+  return pref === 'Stock PT' ? '#2E7D32' : pref === 'Stock Importação' ? '#C62828' : 'var(--muted)';
 }
 
 function clientRowHtml(c) {
@@ -957,6 +972,7 @@ function clientRowHtml(c) {
       <td>${fmt(c.recent)}</td>
       <td>${fmt(c.prior)}</td>
       <td style="color:${pctColor};font-weight:600;">${pctStr}</td>
+      <td style="color:${prefColorOf(c.pref)};font-weight:600;">${c.pref}</td>
     </tr>`;
 }
 
@@ -1043,7 +1059,7 @@ function computeClientOriginMix() {
       const classified = nat + imp;
       if (total24m <= 0 || classified <= 0) return;
       const natPct = nat / classified * 100;
-      const pref = natPct >= 90 ? 'Stock PT' : natPct <= 10 ? 'Stock Importação' : 'Misto';
+      const pref = clientOriginPref(c);
       rows.push({ am, mid, n: c.n, total24m, nat, imp, natPct, pref, claims: (c.k || []).length });
     });
   });
@@ -1051,7 +1067,7 @@ function computeClientOriginMix() {
 }
 
 function originMixRowHtml(c) {
-  const prefColor = c.pref === 'Stock PT' ? '#2E7D32' : c.pref === 'Stock Importação' ? '#C62828' : 'var(--muted)';
+  const prefColor = prefColorOf(c.pref);
   return `
     <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
       <td>${c.n}${c.claims > 0 ? ' <span class="risk-badge" style="margin-left:4px;">Reclamação</span>' : ''}</td>
@@ -1118,7 +1134,7 @@ function computeClientsToRecover() {
       const activeSpan = lastActiveIdx - firstActiveIdx + 1;
       const avgActive = total24m / activeSpan;
       const bucket = monthsInactive <= 5 ? '90-180d' : monthsInactive <= 11 ? '180-365d' : '365d+';
-      rows.push({ am, mid, n: c.n, total24m, monthsInactive, avgActive, bucket, claims: (c.k || []).length, impact: avgActive * monthsInactive });
+      rows.push({ am, mid, n: c.n, total24m, monthsInactive, avgActive, bucket, claims: (c.k || []).length, impact: avgActive * monthsInactive, pref: clientOriginPref(c) });
     });
   });
   return rows;
@@ -1132,6 +1148,7 @@ function recoverRowHtml(c) {
       <td>${c.avgActive.toFixed(1)}</td>
       <td>${fmt(c.total24m)}</td>
       <td>${c.monthsInactive}</td>
+      <td style="color:${prefColorOf(c.pref)};font-weight:600;">${c.pref}</td>
     </tr>`;
 }
 
@@ -1151,7 +1168,7 @@ function sortRecoverTable(key) {
 function renderRecoverTableBody() {
   renderSortableHead('recover-thead', RECOVER_COLS, recoverSortState, 'sortRecoverTable');
   document.getElementById('recover-tbody').innerHTML =
-    recoverRows.map(recoverRowHtml).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes neste escalão.</td></tr>';
+    recoverRows.map(recoverRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes neste escalão.</td></tr>';
 }
 
 function renderRecoverTable() {
