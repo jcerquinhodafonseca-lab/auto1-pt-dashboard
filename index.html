@@ -176,6 +176,9 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 #clients-view .filter-chip{padding:6px 14px;border:1px solid var(--border);border-radius:16px;background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;transition:all .12s}
 #clients-view .filter-chip:hover{background:var(--bg)}
 #clients-view .filter-chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+#clients-view .card-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+#clients-view .card-head-row h3{margin-bottom:0}
+#clients-view .topn-select{font-family:inherit;font-size:11px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer}
 @media (max-width:900px){#clients-view .grid-2{grid-template-columns:1fr}}
 
 #clients-segment-view{padding:16px 28px 28px;display:none}
@@ -335,7 +338,14 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       <div class="funnel-wrap" style="position:relative;height:220px;"><canvas id="clients-funnel-chart"></canvas></div>
     </div>
     <div class="chart-card">
-      <h3>Clientes em Risco (30–89 dias sem compra)</h3>
+      <div class="card-head-row">
+        <h3>Clientes em Risco (30–89 dias sem compra)</h3>
+        <select class="topn-select" onchange="setRiskTopN(this.value)">
+          <option value="50" selected>Top 50</option>
+          <option value="100">Top 100</option>
+          <option value="150">Top 150</option>
+        </select>
+      </div>
       <div class="risk-table-wrap">
         <table>
           <thead><tr><th>Cliente</th><th>AM</th><th>Última Compra</th><th>Sem Comprar</th><th>Estado</th></tr></thead>
@@ -363,7 +373,14 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
   <div class="kpi-row" id="clients-indiv-kpi-row" style="padding:0 28px;margin-bottom:16px;"></div>
   <div class="grid-2" style="padding:0 28px 16px;">
     <div class="chart-card">
-      <h3>Top 50 — Maior Queda</h3>
+      <div class="card-head-row">
+        <h3>Top <span id="clients-decline-topn-label">50</span> — Maior Queda</h3>
+        <select class="topn-select" onchange="setIndivTopN(this.value)">
+          <option value="50" selected>Top 50</option>
+          <option value="100">Top 100</option>
+          <option value="150">Top 150</option>
+        </select>
+      </div>
       <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Ordenado pela maior queda em unidades (últ. 3m − 3m anteriores). Só entram clientes que ainda compravam no período anterior (3m Ant. &gt; 0) — clientes já sem compras nesse período aparecem em "Clientes a Recuperar" abaixo.</p>
       <div class="risk-table-wrap">
         <table>
@@ -373,7 +390,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       </div>
     </div>
     <div class="chart-card">
-      <h3>Top 50 — Maior Crescimento</h3>
+      <h3>Top <span id="clients-growth-topn-label">50</span> — Maior Crescimento</h3>
       <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Ordenado pela maior subida em unidades (últ. 3m − 3m anteriores). Mesma regra: exige 3m Ant. &gt; 0.</p>
       <div class="risk-table-wrap">
         <table>
@@ -394,7 +411,14 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
   </div>
   <div class="kpi-row" id="origin-mix-kpi-row" style="padding:0 28px;margin-bottom:16px;"></div>
   <div class="chart-card" style="margin:0 28px 16px;">
-    <h3>Top 50 — Mix de Stock por Cliente</h3>
+    <div class="card-head-row">
+      <h3>Top <span id="origin-mix-topn-label">50</span> — Mix de Stock por Cliente</h3>
+      <select class="topn-select" onchange="setOriginMixTopN(this.value)">
+        <option value="50" selected>Top 50</option>
+        <option value="100">Top 100</option>
+        <option value="150">Top 150</option>
+      </select>
+    </div>
     <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Ordenado por total de unidades (24m). Clica num cabeçalho para ordenar por essa coluna.</p>
     <div class="risk-table-wrap">
       <table>
@@ -414,8 +438,15 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
     <div style="position:relative;height:200px;"><canvas id="recover-bucket-chart"></canvas></div>
   </div>
   <div class="chart-card" style="margin:0 28px 16px;">
-    <h3>Clientes de Alto Valor a Recuperar</h3>
-    <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Top 50 clientes inativos ordenados por impacto (Média/mês quando ativo × Meses Inativo) — prioriza quem comprava mais E há mais tempo está parado.</p>
+    <div class="card-head-row">
+      <h3>Clientes de Alto Valor a Recuperar</h3>
+      <select class="topn-select" onchange="setRecoverTopN(this.value)">
+        <option value="50" selected>Top 50</option>
+        <option value="100">Top 100</option>
+        <option value="150">Top 150</option>
+      </select>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Top <span id="recover-topn-label">50</span> clientes inativos ordenados por impacto (Média/mês quando ativo × Meses Inativo) — prioriza quem comprava mais E há mais tempo está parado.</p>
     <div class="seg-filter-row" id="recover-filter-row" style="margin-bottom:10px;"></div>
     <div class="risk-table-wrap">
       <table>
@@ -753,6 +784,41 @@ let declineSortState = { key: null, dir: 1 };
 let growthSortState = { key: null, dir: 1 };
 let originMixRows = [];
 let originMixSortState = { key: null, dir: 1 };
+let riskAllRows = [];
+let riskTopN = 50;
+let indivAllRows = [];
+let indivTopN = 50;
+let originMixAllRows = [];
+let originMixTopN = 50;
+let recoverTopN = 50;
+
+function setRiskTopN(v) {
+  riskTopN = parseInt(v, 10);
+  renderRiskTable();
+}
+function setIndivTopN(v) {
+  indivTopN = parseInt(v, 10);
+  document.getElementById('clients-decline-topn-label').textContent = indivTopN;
+  document.getElementById('clients-growth-topn-label').textContent = indivTopN;
+  declineRows = indivAllRows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, indivTopN);
+  growthRows = indivAllRows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, indivTopN);
+  declineSortState = { key: null, dir: 1 };
+  growthSortState = { key: null, dir: 1 };
+  renderDeclineTable();
+  renderGrowthTable();
+}
+function setOriginMixTopN(v) {
+  originMixTopN = parseInt(v, 10);
+  document.getElementById('origin-mix-topn-label').textContent = originMixTopN;
+  originMixRows = [...originMixAllRows].sort((a, b) => b.total24m - a.total24m).slice(0, originMixTopN);
+  originMixSortState = { key: null, dir: 1 };
+  renderOriginMixTableBody();
+}
+function setRecoverTopN(v) {
+  recoverTopN = parseInt(v, 10);
+  document.getElementById('recover-topn-label').textContent = recoverTopN;
+  renderRecoverTable();
+}
 
 function sortTableRows(rows, state, key) {
   const isString = key === 'n' || key === 'am' || key === 'pref';
@@ -868,21 +934,12 @@ function renderClientsTrend() {
   });
 
   const now = TODAY;
-  const risk = CLIENT_LIFECYCLE
+  riskAllRows = CLIENT_LIFECYCLE
     .filter(c => c.db && !c.a30 && c.last)
     .map(c => ({ ...c, days: Math.floor((now - new Date(c.last)) / 86400000) }))
     .filter(c => c.days >= 30 && c.days < 90)
-    .sort((a, b) => a.days - b.days)
-    .slice(0, 30);
-
-  document.getElementById('clients-risk-tbody').innerHTML = risk.map(c => `
-    <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
-      <td>${c.n}</td>
-      <td><span class="am-chip">${c.am}</span></td>
-      <td>${new Date(c.last).toLocaleDateString('pt-PT')}</td>
-      <td><span class="days-badge">${c.days} dias</span></td>
-      <td><span class="risk-badge">Em risco</span></td>
-    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes em risco.</td></tr>';
+    .sort((a, b) => a.days - b.days);
+  renderRiskTable();
 
   if (clientsSegTrendChart) { clientsSegTrendChart.destroy(); clientsSegTrendChart = null; }
   const segTrendEl = document.getElementById('clients-seg-trend-chart');
@@ -927,6 +984,18 @@ function renderClientsTrend() {
   renderClientsIndividual();
   renderClientOriginMix();
   renderClientsRecover();
+}
+
+function renderRiskTable() {
+  const risk = riskAllRows.slice(0, riskTopN);
+  document.getElementById('clients-risk-tbody').innerHTML = risk.map(c => `
+    <tr class="link-row" onclick="showClientDetail('${c.am.replace(/'/g, "\\'")}','${c.mid}')">
+      <td>${c.n}</td>
+      <td><span class="am-chip">${c.am}</span></td>
+      <td>${new Date(c.last).toLocaleDateString('pt-PT')}</td>
+      <td><span class="days-badge">${c.days} dias</span></td>
+      <td><span class="risk-badge">Em risco</span></td>
+    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes em risco.</td></tr>';
 }
 
 function clientOriginPref(c) {
@@ -978,6 +1047,7 @@ function clientRowHtml(c) {
 
 function renderClientsIndividual() {
   const rows = computeClientTrends();
+  indivAllRows = rows;
   const declining = rows.filter(c => c.delta < 0).length;
   const growing = rows.filter(c => c.delta > 0).length;
   const stable = rows.length - declining - growing;
@@ -1002,8 +1072,8 @@ function renderClientsIndividual() {
       <div class="kpi-sub">entre clientes em queda</div></div>
   `;
 
-  declineRows = rows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 50);
-  growthRows = rows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 50);
+  declineRows = rows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, indivTopN);
+  growthRows = rows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, indivTopN);
   declineSortState = { key: null, dir: 1 };
   growthSortState = { key: null, dir: 1 };
   renderDeclineTable();
@@ -1093,7 +1163,8 @@ function renderOriginMixTableBody() {
 
 function renderClientOriginMix() {
   const rows = computeClientOriginMix();
-  originMixRows = [...rows].sort((a, b) => b.total24m - a.total24m).slice(0, 50);
+  originMixAllRows = rows;
+  originMixRows = [...rows].sort((a, b) => b.total24m - a.total24m).slice(0, originMixTopN);
   originMixSortState = { key: null, dir: 1 };
   renderOriginMixTableBody();
 
@@ -1173,7 +1244,7 @@ function renderRecoverTableBody() {
 
 function renderRecoverTable() {
   const rows = recoverFilterBucket === 'all' ? recoverAllRows : recoverAllRows.filter(c => c.bucket === recoverFilterBucket);
-  recoverRows = [...rows].sort((a, b) => b.impact - a.impact).slice(0, 50);
+  recoverRows = [...rows].sort((a, b) => b.impact - a.impact).slice(0, recoverTopN);
   recoverSortState = { key: null, dir: 1 };
   renderRecoverTableBody();
 }
