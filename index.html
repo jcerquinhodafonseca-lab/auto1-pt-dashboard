@@ -1907,7 +1907,7 @@ function renderClientPeriod() {
   var mid = currentClientMid;
   if (!amName || !mid || !CLIENT_DATA.clients[amName] || !CLIENT_DATA.clients[amName][mid]) return;
 
-  var client = CLIENT_DATA.clients[amName][mid];
+  var client = getClientAllAM(mid);
   var u = client.u;
 
   if (currentClientPeriod === '24M') {
