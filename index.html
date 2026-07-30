@@ -1004,7 +1004,7 @@ function clientOriginPref(c) {
   const classified = nat + imp;
   if (classified <= 0) return 'Sem dados';
   const natPct = nat / classified * 100;
-  return natPct >= 90 ? 'Stock PT' : natPct <= 10 ? 'Stock Importação' : 'Misto';
+  return natPct >= 70 ? 'Stock PT' : natPct <= 30 ? 'Stock Importação' : 'Misto';
 }
 
 function computeClientTrends() {
@@ -1175,11 +1175,11 @@ function renderClientOriginMix() {
     <div class="kpi-card"><div class="kpi-bar" style="background:#2E7D32"></div>
       <div class="kpi-label">Clientes só Stock PT</div>
       <div class="kpi-val">${fmt(nNat)}</div>
-      <div class="kpi-sub">≥90% das unidades classificadas</div></div>
+      <div class="kpi-sub">≥70% das unidades classificadas</div></div>
     <div class="kpi-card"><div class="kpi-bar" style="background:#C62828"></div>
       <div class="kpi-label">Clientes só Importação</div>
       <div class="kpi-val">${fmt(nImp)}</div>
-      <div class="kpi-sub">≤10% das unidades classificadas</div></div>
+      <div class="kpi-sub">≥70% das unidades classificadas</div></div>
     <div class="kpi-card"><div class="kpi-bar" style="background:#B0BEC5"></div>
       <div class="kpi-label">Clientes Mistos</div>
       <div class="kpi-val">${fmt(nMix)}</div>
