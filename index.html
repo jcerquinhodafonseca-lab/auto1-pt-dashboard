@@ -344,6 +344,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
           <option value="50" selected>Top 50</option>
           <option value="100">Top 100</option>
           <option value="150">Top 150</option>
+          <option value="all">Todos</option>
         </select>
       </div>
       <div class="risk-table-wrap">
@@ -793,7 +794,7 @@ let originMixTopN = 50;
 let recoverTopN = 50;
 
 function setRiskTopN(v) {
-  riskTopN = parseInt(v, 10);
+  riskTopN = v === 'all' ? Infinity : parseInt(v, 10);
   renderRiskTable();
 }
 function setIndivTopN(v) {
