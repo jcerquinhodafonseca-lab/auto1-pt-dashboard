@@ -2284,11 +2284,38 @@ function renderClientList(id, clients, amName) {
   </div>`;
 }
 
+function getClientAllAM(merchantId) {
+  const mid = String(merchantId);
+  const zeros = () => new Array(24).fill(0);
+  const u = zeros(), un = zeros(), ui = zeros(), c = zeros();
+  let k = [];
+  let n = '';
+  const breakdown = [];
+
+  for (const am in CLIENT_DATA.clients) {
+    const entry = CLIENT_DATA.clients[am][mid];
+    if (!entry) continue;
+    const total = (entry.u || []).reduce((a,b)=>a+b, 0);
+    if (!n && entry.n) n = entry.n;
+    for (let i = 0; i < 24; i++) {
+      u[i]  += entry.u[i]  || 0;
+      un[i] += entry.un[i] || 0;
+      ui[i] += entry.ui[i] || 0;
+      c[i]  += entry.c[i]  || 0;
+    }
+    if (entry.k && entry.k.length) k = k.concat(entry.k);
+    if (total > 0) breakdown.push({ am, total });
+  }
+
+  breakdown.sort((a,b) => b.total - a.total);
+  return { n, u, un, ui, c, k, breakdown };
+}
+
 function showClientDetail(amName, merchantId) {
   const amData = CLIENT_DATA.clients[amName];
   if (!amData) return;
-  const client = amData[merchantId] || amData[String(merchantId)];
-  if (!client) return;
+  if (!(amData[merchantId] || amData[String(merchantId)])) return;
+  const client = getClientAllAM(merchantId);
 
   if (currentTeamIdx < 0 || !TEAMS[currentTeamIdx] || !TEAMS[currentTeamIdx].ams[currentAmIdx] || TEAMS[currentTeamIdx].ams[currentAmIdx].name !== amName) {
     let ti = -1, ai = -1;
@@ -2315,9 +2342,12 @@ function showClientDetail(amName, merchantId) {
   const u6  = client.u.slice(18).reduce((a,b)=>a+b,0);
   const avgM = (u24/24).toFixed(1);
 
+  const amInfoLine = client.breakdown.length > 1
+    ? `Compras através de: ${client.breakdown.map(b => `${b.am} (${b.total} un.)`).join(', ')}`
+    : `Cliente de ${amName}`;
   document.getElementById('client-header').innerHTML = `
     <div style="font-size:20px;font-weight:800;color:var(--dark);margin-bottom:4px;">${client.n}</div>
-    <div style="font-size:12px;color:var(--muted);">Cliente de ${amName}</div>`;
+    <div style="font-size:12px;color:var(--muted);">${amInfoLine}</div>`;
 
   const clientViews = VIEWS_DATA[String(merchantId)] || new Array(24).fill(0);
   const cv24 = clientViews.reduce((a,b)=>a+b,0);
