@@ -187,8 +187,8 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 #clients-segment-view table{width:100%;border-collapse:collapse;font-size:13px}
 #clients-segment-view th,#clients-segment-view td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
 #clients-segment-view th{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.4px}
-#clients-segment-view th.sortable{cursor:pointer;user-select:none}
-#clients-segment-view th.sortable:hover{color:var(--blue)}
+#clients-segment-view th.sortable,#clients-view th.sortable{cursor:pointer;user-select:none}
+#clients-segment-view th.sortable:hover,#clients-view th.sortable:hover{color:var(--blue)}
 #clients-segment-view .seg-search-row{margin-bottom:12px}
 #clients-segment-view .seg-search-row input{width:100%;max-width:340px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;background:var(--bg)}
 #clients-segment-view .seg-search-row input:focus{outline:none;border-color:var(--blue)}
@@ -327,6 +327,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
     <h2>Tendência de Clientes</h2>
     <p>Carteira PT — ciclo de vida por data de adjudicação · Atualizado: 21/07/2026</p>
   </div>
+  <p style="font-size:12px;color:var(--muted);margin:-4px 28px 4px;">Esta secção usa a "carteira oficial": só entram clientes cuja última compra está atribuída a um AM PT atualmente ativo. Clientes com histórico de compras mas sem AM ativo associado não aparecem aqui — ver "Clientes a Recuperar" mais abaixo, que usa o histórico completo.</p>
   <div class="kpi-row" id="clients-kpi-row" style="padding:0 28px;margin-top:16px;"></div>
   <div class="grid-2" style="padding:0 28px;margin-top:16px;">
     <div class="chart-card">
@@ -366,7 +367,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Ordenado pela maior queda em unidades (últ. 3m − 3m anteriores). Só entram clientes que ainda compravam no período anterior (3m Ant. &gt; 0) — clientes já sem compras nesse período aparecem em "Clientes a Recuperar" abaixo.</p>
       <div class="risk-table-wrap">
         <table>
-          <thead><tr><th>Cliente</th><th>AM</th><th>24m</th><th>Últ. 3m</th><th>3m Ant.</th><th>Δ%</th></tr></thead>
+          <thead><tr id="clients-decline-thead"></tr></thead>
           <tbody id="clients-decline-tbody"></tbody>
         </table>
       </div>
@@ -376,7 +377,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       <p style="font-size:12px;color:var(--muted);margin:-6px 0 10px;">Ordenado pela maior subida em unidades (últ. 3m − 3m anteriores). Mesma regra: exige 3m Ant. &gt; 0.</p>
       <div class="risk-table-wrap">
         <table>
-          <thead><tr><th>Cliente</th><th>AM</th><th>24m</th><th>Últ. 3m</th><th>3m Ant.</th><th>Δ%</th></tr></thead>
+          <thead><tr id="clients-growth-thead"></tr></thead>
           <tbody id="clients-growth-tbody"></tbody>
         </table>
       </div>
@@ -403,7 +404,7 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
     <div class="seg-filter-row" id="recover-filter-row" style="margin-bottom:10px;"></div>
     <div class="risk-table-wrap">
       <table>
-        <thead><tr><th>Cliente</th><th>AM</th><th>Média/mês (ativo)</th><th>Total 24m</th><th>Meses Inativo</th></tr></thead>
+        <thead><tr id="recover-thead"></tr></thead>
         <tbody id="recover-tbody"></tbody>
       </table>
     </div>
@@ -706,6 +707,69 @@ let clientsIndivScatterChart = null;
 let recoverBucketChart = null;
 let recoverFilterBucket = 'all';
 
+const DECLINE_GROWTH_COLS = [
+  { key: 'n', label: 'Cliente' },
+  { key: 'am', label: 'AM' },
+  { key: 'total24m', label: '24m' },
+  { key: 'recent', label: 'Últ. 3m' },
+  { key: 'prior', label: '3m Ant.' },
+  { key: 'pctChange', label: 'Δ%' },
+];
+const RECOVER_COLS = [
+  { key: 'n', label: 'Cliente' },
+  { key: 'am', label: 'AM' },
+  { key: 'avgActive', label: 'Média/mês (ativo)' },
+  { key: 'total24m', label: 'Total 24m' },
+  { key: 'monthsInactive', label: 'Meses Inativo' },
+];
+let declineRows = [], growthRows = [];
+let declineSortState = { key: null, dir: 1 };
+let growthSortState = { key: null, dir: 1 };
+
+function sortTableRows(rows, state, key) {
+  const isString = key === 'n' || key === 'am';
+  if (state.key === key) { state.dir *= -1; }
+  else { state.key = key; state.dir = isString ? 1 : -1; }
+  const dir = state.dir;
+  return [...rows].sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (isString) {
+      va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+      return dir * (va < vb ? -1 : va > vb ? 1 : 0);
+    }
+    return dir * (va - vb);
+  });
+}
+
+function renderSortableHead(theadId, cols, state, sortFn) {
+  document.getElementById(theadId).innerHTML = cols.map(c => {
+    const arrow = state.key === c.key ? (state.dir === 1 ? ' ▲' : ' ▼') : '';
+    return `<th class="sortable" onclick="${sortFn}('${c.key}')">${c.label}${arrow}</th>`;
+  }).join('');
+}
+
+function sortDecline(key) {
+  declineRows = sortTableRows(declineRows, declineSortState, key);
+  renderDeclineTable();
+}
+
+function sortGrowth(key) {
+  growthRows = sortTableRows(growthRows, growthSortState, key);
+  renderGrowthTable();
+}
+
+function renderDeclineTable() {
+  renderSortableHead('clients-decline-thead', DECLINE_GROWTH_COLS, declineSortState, 'sortDecline');
+  document.getElementById('clients-decline-tbody').innerHTML =
+    declineRows.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em queda.</td></tr>';
+}
+
+function renderGrowthTable() {
+  renderSortableHead('clients-growth-thead', DECLINE_GROWTH_COLS, growthSortState, 'sortGrowth');
+  document.getElementById('clients-growth-tbody').innerHTML =
+    growthRows.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em crescimento.</td></tr>';
+}
+
 function showClientsTrend() {
   setTopNav('clientes');
   document.getElementById('teams-view').style.display = 'none';
@@ -752,7 +816,7 @@ function renderClientsTrend() {
     <div class="kpi-card clickable" onclick="showClientSegment('i6m')"><div class="kpi-bar" style="background:#C62828"></div>
       <div class="kpi-label">Inativos (90 dias)</div>
       <div class="kpi-val">${fmt(inactive6m)}</div>
-      <div class="kpi-sub">${pct(inactive6m)}% da carteira — em risco</div></div>
+      <div class="kpi-sub">${pct(inactive6m)}% da carteira oficial — só clientes com AM ativo atribuído</div></div>
   `;
 
   if (clientsFunnelChart) { clientsFunnelChart.destroy(); clientsFunnelChart = null; }
@@ -895,13 +959,12 @@ function renderClientsIndividual() {
       <div class="kpi-sub">entre clientes em queda</div></div>
   `;
 
-  const decline = rows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 50);
-  const growth = rows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 50);
-
-  document.getElementById('clients-decline-tbody').innerHTML =
-    decline.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em queda.</td></tr>';
-  document.getElementById('clients-growth-tbody').innerHTML =
-    growth.map(clientRowHtml).join('') || '<tr><td colspan="6" style="color:var(--muted);">Sem clientes em crescimento.</td></tr>';
+  declineRows = rows.filter(c => c.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 50);
+  growthRows = rows.filter(c => c.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 50);
+  declineSortState = { key: null, dir: 1 };
+  growthSortState = { key: null, dir: 1 };
+  renderDeclineTable();
+  renderGrowthTable();
 
   const sortedByTotal = [...rows].sort((a, b) => a.total24m - b.total24m);
   const median = sortedByTotal.length ? sortedByTotal[Math.floor(sortedByTotal.length / 2)].total24m : 0;
@@ -984,14 +1047,27 @@ function setRecoverFilter(bucket) {
   });
 }
 
+function sortRecoverTable(key) {
+  recoverRows = sortTableRows(recoverRows, recoverSortState, key);
+  renderRecoverTableBody();
+}
+
+function renderRecoverTableBody() {
+  renderSortableHead('recover-thead', RECOVER_COLS, recoverSortState, 'sortRecoverTable');
+  document.getElementById('recover-tbody').innerHTML =
+    recoverRows.map(recoverRowHtml).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes neste escalão.</td></tr>';
+}
+
 function renderRecoverTable() {
   const rows = recoverFilterBucket === 'all' ? recoverAllRows : recoverAllRows.filter(c => c.bucket === recoverFilterBucket);
-  const top = [...rows].sort((a, b) => b.impact - a.impact).slice(0, 50);
-  document.getElementById('recover-tbody').innerHTML =
-    top.map(recoverRowHtml).join('') || '<tr><td colspan="5" style="color:var(--muted);">Sem clientes neste escalão.</td></tr>';
+  recoverRows = [...rows].sort((a, b) => b.impact - a.impact).slice(0, 50);
+  recoverSortState = { key: null, dir: 1 };
+  renderRecoverTableBody();
 }
 
 let recoverAllRows = [];
+let recoverRows = [];
+let recoverSortState = { key: null, dir: 1 };
 
 function renderClientsRecover() {
   recoverAllRows = computeClientsToRecover();
@@ -1008,7 +1084,7 @@ function renderClientsRecover() {
     <div class="kpi-card"><div class="kpi-bar" style="background:var(--orange)"></div>
       <div class="kpi-label">Clientes Inativos (≥90 dias)</div>
       <div class="kpi-val">${fmt(recoverAllRows.length)}</div>
-      <div class="kpi-sub">com histórico de compras</div></div>
+      <div class="kpi-sub">histórico completo de compras — inclui clientes fora da carteira oficial (sem AM ativo atribuído)</div></div>
   `;
 
   const buckets = ['90-180d', '180-365d', '365d+'];
