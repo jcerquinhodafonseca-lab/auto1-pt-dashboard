@@ -148,7 +148,7 @@ def team_for(am_name):
 
 # --- per-AM monthly units, per (AM, merchant) monthly units + name ---
 am_monthly = {}
-client_units = {}  # am_name -> merchant_id -> {"n":..., "u":[24]}
+client_units = {}  # am_name -> merchant_id -> {"n":..., "u":[24], "un":[24], "ui":[24]}
 for r in purchases:
     mo = str(r["month"])[:10]
     if mo not in MONTH_INDEX:
@@ -157,12 +157,19 @@ for r in purchases:
     am = r["am_name"]
     mid = str(r["merchant_id"])
     units = int(r["units"] or 0)
+    origin = r.get("origin")
 
     am_monthly.setdefault(am, [0] * 24)[idx] += units
 
-    c = client_units.setdefault(am, {}).setdefault(mid, {"n": r.get("merchant_name") or "", "u": [0] * 24})
+    c = client_units.setdefault(am, {}).setdefault(
+        mid, {"n": r.get("merchant_name") or "", "u": [0] * 24, "un": [0] * 24, "ui": [0] * 24}
+    )
     c["n"] = r.get("merchant_name") or c["n"]
     c["u"][idx] += units
+    if origin == "national":
+        c["un"][idx] += units
+    elif origin == "import":
+        c["ui"][idx] += units
 
 # --- per-AM monthly calls, per (AM, merchant) monthly calls ---
 am_calls_monthly = {}
@@ -225,10 +232,12 @@ for am in all_am_names:
     mids = set(client_units.get(am, {})) | set(client_calls.get(am, {})) | set(client_claims.get(am, {}))
     for mid in mids:
         u = client_units.get(am, {}).get(mid, {}).get("u", [0] * 24)
+        un = client_units.get(am, {}).get(mid, {}).get("un", [0] * 24)
+        ui = client_units.get(am, {}).get(mid, {}).get("ui", [0] * 24)
         n = client_units.get(am, {}).get(mid, {}).get("n", "")
         c = client_calls.get(am, {}).get(mid, [0] * 24)
         k = client_claims.get(am, {}).get(mid, [])
-        merchants[mid] = {"n": n, "u": u, "c": c, "k": k}
+        merchants[mid] = {"n": n, "u": u, "un": un, "ui": ui, "c": c, "k": k}
     clients_out[am] = merchants
 
 CLIENT_DATA = {"months": MONTHS, "clients": clients_out}
