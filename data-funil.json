@@ -1,0 +1,19 @@
+{
+  "funil_geral": {
+    "total_calls_success": 2847,
+    "unique_dealers_views": 1956,
+    "unique_dealers_watchlist": 892,
+    "unique_dealers_bids": 456,
+    "unique_dealers_purchase": 178,
+    "conv_calls_to_views_pct": 68.7,
+    "conv_views_to_watchlist_pct": 45.6,
+    "conv_watchlist_to_bids_pct": 51.1,
+    "conv_bids_to_purchase_pct": 39.0,
+    "conv_overall_pct": 6.3
+  },
+  "funil_individual": [
+    {"am_name": "Jose de Sousa Teixeira", "merchant_name": "Dealer A", "step1_successful_calls": 45, "step2_dealers_with_views": 32, "step3_dealers_watchlist": 18, "step4_dealers_bids": 12, "step5_dealers_purchase": 3},
+    {"am_name": "Goncalo Nogueira Dos Santos", "merchant_name": "Dealer B", "step1_successful_calls": 52, "step2_dealers_with_views": 38, "step3_dealers_watchlist": 22, "step4_dealers_bids": 14, "step5_dealers_purchase": 4},
+    {"am_name": "Ricardo Almeida Vaz", "merchant_name": "Dealer C", "step1_successful_calls": 38, "step2_dealers_with_views": 28, "step3_dealers_watchlist": 15, "step4_dealers_bids": 9, "step5_dealers_purchase": 2}
+  ]
+}
