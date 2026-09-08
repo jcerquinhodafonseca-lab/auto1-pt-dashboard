@@ -83,12 +83,6 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 .stage-conversion{font-size:12px;color:#0066cc;font-weight:bold}
 .funil-arrow{font-size:20px;color:#0066cc;flex:0.3;text-align:center}
 .funil-overall{text-align:center;font-size:14px;margin-top:15px;padding-top:15px;border-top:1px solid #ddd}
-.funil-drill-down{display:block;margin:15px auto 0;padding:8px 16px;background:#0066cc;color:white;border:none;border-radius:4px;cursor:pointer;font-size:13px}
-.funil-drill-down:hover{background:#0052a3}
-.modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5)}
-.modal-content{background-color:#fff;margin:10% auto;padding:20px;border:1px solid #888;width:90%;max-width:1000px;border-radius:4px;max-height:80vh;overflow-y:auto}
-.close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer}
-.close:hover{color:#000}
 
 /* AM GRID VIEW */
 #am-view{padding:16px 28px 28px;display:none}
@@ -319,15 +313,6 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
         <div class="funil-stage"><div class="stage-number">5</div><div class="stage-title">Compras</div><div class="stage-value" id="funil-purchase">-</div><div class="stage-conversion" id="conv-bids-purchase">-</div></div>
       </div>
       <div class="funil-overall"><strong>Taxa Overall:</strong> <span id="funil-overall-pct">-</span>%</div>
-      <button class="funil-drill-down" onclick="showDrilldownModal()">📊 Ver detalhes por dealer</button>
-    </div>
-    <!-- MODAL DRILL-DOWN -->
-    <div id="drilldown-modal" class="modal" style="display:none;">
-      <div class="modal-content">
-        <span class="close" onclick="closeDrilldownModal()">&times;</span>
-        <h3>Funil Detalhado - Por Dealer</h3>
-        <div id="drilldown-table-container"><p>Carregando dados...</p></div>
-      </div>
     </div>
     <div id="clients-section" style="margin-top:20px;display:none;">
       <div style="display:flex;gap:16px;align-items:flex-start;">
@@ -2572,8 +2557,6 @@ const VIEWS_DATA = {"136590": [75, 13, 3, 6, 0, 44, 70, 184, 155, 226, 329, 154,
 
 <script>
 async function loadFunilData(){try{const r=await fetch('./data-funil.json');const d=await r.json();const m=d.funil_geral;document.getElementById('funil-calls').textContent=m.total_calls_success||0;document.getElementById('funil-views').textContent=m.unique_dealers_views||0;document.getElementById('funil-watchlist').textContent=m.unique_dealers_watchlist||0;document.getElementById('funil-bids').textContent=m.unique_dealers_bids||0;document.getElementById('funil-purchase').textContent=m.unique_dealers_purchase||0;document.getElementById('conv-calls-views').textContent=(m.conv_calls_to_views_pct||0).toFixed(1)+'%';document.getElementById('conv-views-watchlist').textContent=(m.conv_views_to_watchlist_pct||0).toFixed(1)+'%';document.getElementById('conv-watchlist-bids').textContent=(m.conv_watchlist_to_bids_pct||0).toFixed(1)+'%';document.getElementById('conv-bids-purchase').textContent=(m.conv_bids_to_purchase_pct||0).toFixed(1)+'%';document.getElementById('funil-overall-pct').textContent=(m.conv_overall_pct||0).toFixed(1)}catch(e){console.error('Erro Funil:',e)}}
-function showDrilldownModal(){document.getElementById('drilldown-modal').style.display='block';fetch('./data-funil.json').then(r=>r.json()).then(d=>{const rows=d.funil_individual;const html=`<table style="width:100%;border-collapse:collapse;"><tr style="background:#f0f0f0;"><th style="padding:8px;border:1px solid #ddd;">AM</th><th style="padding:8px;border:1px solid #ddd;">Dealer</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Calls</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Views</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">WL</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Bids</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Compras</th></tr>${rows.map(r=>`<tr><td style="padding:8px;border:1px solid #ddd;">${r.am_name}</td><td style="padding:8px;border:1px solid #ddd;">${r.merchant_name}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step1_successful_calls}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step2_dealers_with_views}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step3_dealers_watchlist}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step4_dealers_bids}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step5_dealers_purchase}</td></tr>`).join('')}</table>`;document.getElementById('drilldown-table-container').innerHTML=html}).catch(e=>{document.getElementById('drilldown-table-container').innerHTML=`<p style="color:red;">Erro: ${e.message}</p>`})}
-function closeDrilldownModal(){document.getElementById('drilldown-modal').style.display='none'}
 document.addEventListener('DOMContentLoaded',()=>{loadFunilData()})
 </script>
 </body></html>
