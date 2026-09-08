@@ -2623,22 +2623,23 @@ function renderFunil(am, period, curLabel){
     {name:'Viram carros',        sub:'dealers únicos',          val:rec.views},
     {name:'Watchlist',           sub:'dealers únicos',          val:rec.watchlist},
     {name:'Bids',                sub:'dealers únicos',          val:rec.bids},
-    {name:'Compraram',           sub:'dealers únicos',          val:rec.purchase},
+    {name:'Compraram',           sub:'dealers (contas), não carros', val:rec.purchase},
   ];
 
-  // Conversão global: contactados → compraram
+  // Conversão global: contactados → compraram (dealers)
   const overall = rec.called > 0 ? (rec.purchase/rec.called*100) : 0;
   const ovEl = document.getElementById('funil-overall-pct');
   if (ovEl) ovEl.textContent = overall.toFixed(1);
 
-  // KPIs reais do período
-  const effic = rec.calls > 0 ? (rec.units/rec.calls) : 0;
+  // Unidades vendidas: MESMA fonte que o dashboard mostra em cima (calcPeriod sobre daily)
+  const unitsDash = calcPeriod(am.daily, period).cur;
+  const carrosPorDealer = rec.purchase > 0 ? (unitsDash/rec.purchase) : 0;
   const kpis = document.getElementById('funil-kpis');
   if (kpis) kpis.innerHTML = `
     <div class="fkpi"><div class="fkpi-label">Chamadas com sucesso</div><div class="fkpi-val">${fmt(rec.calls)}</div><div class="fkpi-sub">≥30 seg</div></div>
-    <div class="fkpi"><div class="fkpi-label">Unidades vendidas</div><div class="fkpi-val">${fmt(rec.units)}</div><div class="fkpi-sub">carros comprados pelos dealers</div></div>
-    <div class="fkpi"><div class="fkpi-label">Eficiência</div><div class="fkpi-val">${effic.toFixed(2)}</div><div class="fkpi-sub">un. vendidas ÷ chamadas</div></div>
-    <div class="fkpi"><div class="fkpi-label">Dealers que compraram</div><div class="fkpi-val">${fmt(rec.purchase)}</div><div class="fkpi-sub">de ${fmt(rec.called)} contactados</div></div>`;
+    <div class="fkpi"><div class="fkpi-label">Dealers que compraram</div><div class="fkpi-val">${fmt(rec.purchase)}</div><div class="fkpi-sub">contas, de ${fmt(rec.called)} contactadas</div></div>
+    <div class="fkpi"><div class="fkpi-label">Carros vendidos</div><div class="fkpi-val">${fmt(unitsDash)}</div><div class="fkpi-sub">unidades (= vendas do topo)</div></div>
+    <div class="fkpi"><div class="fkpi-label">Carros por dealer</div><div class="fkpi-val">${carrosPorDealer.toFixed(1)}</div><div class="fkpi-sub">carros ÷ dealers compradores</div></div>`;
 
   // Cards com conversão entre etapas
   const cardsEl = document.getElementById('funil-cards');
@@ -2660,7 +2661,7 @@ function renderFunil(am, period, curLabel){
 
   // Nota
   const noteEl = document.getElementById('funil-note');
-  if (noteEl) noteEl.innerHTML = `<strong>100% dados reais do Redash.</strong> Coorte = dealers com pelo menos uma chamada com sucesso deste AM no período; cada etapa conta os <em>dealers únicos</em> dessa coorte que viram carros, adicionaram à watchlist, licitaram e compraram — recalculado dentro de cada janela (WTD / MTD / YTD / 12M / 24M).`;
+  if (noteEl) noteEl.innerHTML = `<strong>100% dados reais do Redash.</strong> As 5 etapas contam <em>dealers únicos</em> (contas), não carros — por isso <strong>Compraram</strong> (nº de dealers) é diferente de <strong>Carros vendidos</strong> (unidades): um dealer compra vários carros. Coorte = dealers com ≥1 chamada com sucesso deste AM no período; cada etapa conta os dealers dessa coorte que avançaram, recalculado dentro da janela (WTD / MTD / YTD / 12M / 24M).`;
 
   // Gráfico de funil horizontal (real)
   setTimeout(()=>{
