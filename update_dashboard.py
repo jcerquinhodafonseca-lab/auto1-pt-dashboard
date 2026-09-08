@@ -14,6 +14,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 from datetime import date
 
@@ -91,8 +92,31 @@ AM_TEAM = {
 
 
 def fetch_rows(query_id):
+    """Force Redash to re-run the query so we never read a stale cached result."""
     req = urllib.request.Request(
-        f"{REDASH_URL}/api/queries/{query_id}/results.json",
+        f"{REDASH_URL}/api/queries/{query_id}/refresh",
+        headers={"Authorization": f"Key {API_KEY}"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=120) as resp:
+        job = json.load(resp)["job"]
+
+    job_id = job["id"]
+    while job["status"] not in (3, 4):  # 3=success, 4=failed
+        time.sleep(1)
+        req = urllib.request.Request(
+            f"{REDASH_URL}/api/jobs/{job_id}",
+            headers={"Authorization": f"Key {API_KEY}"},
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            job = json.load(resp)["job"]
+
+    if job["status"] == 4:
+        sys.exit(f"Redash query {query_id} refresh failed: {job.get('error')}")
+
+    result_id = job["query_result_id"]
+    req = urllib.request.Request(
+        f"{REDASH_URL}/api/queries/{query_id}/results/{result_id}.json",
         headers={"Authorization": f"Key {API_KEY}"},
     )
     with urllib.request.urlopen(req, timeout=120) as resp:
