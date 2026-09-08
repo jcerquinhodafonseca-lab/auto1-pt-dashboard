@@ -1,15 +1,2285 @@
 {
-  "funil_geral": {
-    "total_calls_success": 2847,
-    "unique_dealers_views": 1956,
-    "unique_dealers_watchlist": 892,
-    "unique_dealers_bids": 456,
-    "unique_dealers_purchase": 178,
-    "conv_calls_to_views_pct": 68.7,
-    "conv_views_to_watchlist_pct": 45.6,
-    "conv_watchlist_to_bids_pct": 51.1,
-    "conv_bids_to_purchase_pct": 39.0,
-    "conv_overall_pct": 6.3
-  },
-  "_nota": "funil_geral = curva média de conversão de Portugal (dealers únicos por estágio). O dashboard usa estas frações para estimar os estágios intermédios a partir das chamadas reais de cada AM por período. Atualizar via update-funil-data.sh (queries Redash 138700)."
+"_fonte": "Redash data source 89 (wkda_dm_es). Funil real por AM e periodo. Cohort = dealers com chamada com sucesso do AM no periodo; etapas = quantos desses dealers viram carros / watchlist / bid / compraram (dealers unicos na janela). calls=chamadas com sucesso, units=unidades vendidas. Atualizar com refresh-funil.sh.",
+"periods": [
+"WTD",
+"MTD",
+"YTD",
+"12M",
+"24M"
+],
+"ams": {
+"Edson Jesus Mendes": {
+"MTD": {
+"calls": 124,
+"called": 110,
+"views": 13,
+"watchlist": 4,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"WTD": {
+"calls": 45,
+"called": 45,
+"views": 6,
+"watchlist": 2,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 226,
+"called": 145,
+"views": 83,
+"watchlist": 42,
+"bids": 4,
+"purchase": 0,
+"units": 0
+},
+"YTD": {
+"calls": 226,
+"called": 145,
+"views": 49,
+"watchlist": 19,
+"bids": 2,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 226,
+"called": 145,
+"views": 68,
+"watchlist": 26,
+"bids": 2,
+"purchase": 0,
+"units": 0
+}
+},
+"Telmo Inacio Feliciano": {
+"YTD": {
+"calls": 2713,
+"called": 308,
+"views": 237,
+"watchlist": 159,
+"bids": 57,
+"purchase": 43,
+"units": 127
+},
+"24M": {
+"calls": 3368,
+"called": 327,
+"views": 289,
+"watchlist": 216,
+"bids": 88,
+"purchase": 49,
+"units": 144
+},
+"12M": {
+"calls": 3368,
+"called": 327,
+"views": 259,
+"watchlist": 181,
+"bids": 68,
+"purchase": 49,
+"units": 144
+},
+"MTD": {
+"calls": 75,
+"called": 48,
+"views": 28,
+"watchlist": 19,
+"bids": 5,
+"purchase": 4,
+"units": 7
+},
+"WTD": {
+"calls": 24,
+"called": 18,
+"views": 9,
+"watchlist": 5,
+"bids": 2,
+"purchase": 1,
+"units": 1
+}
+},
+"Francisco Cerca Goncalves": {
+"12M": {
+"calls": 3928,
+"called": 362,
+"views": 273,
+"watchlist": 201,
+"bids": 98,
+"purchase": 50,
+"units": 174
+},
+"YTD": {
+"calls": 3330,
+"called": 353,
+"views": 259,
+"watchlist": 185,
+"bids": 88,
+"purchase": 49,
+"units": 169
+},
+"MTD": {
+"calls": 101,
+"called": 93,
+"views": 53,
+"watchlist": 33,
+"bids": 6,
+"purchase": 4,
+"units": 4
+},
+"24M": {
+"calls": 3928,
+"called": 362,
+"views": 295,
+"watchlist": 233,
+"bids": 115,
+"purchase": 50,
+"units": 174
+}
+},
+"Joana Fernandes Agostinho": {
+"12M": {
+"calls": 462,
+"called": 162,
+"views": 132,
+"watchlist": 79,
+"bids": 16,
+"purchase": 4,
+"units": 6
+},
+"YTD": {
+"calls": 462,
+"called": 162,
+"views": 121,
+"watchlist": 61,
+"bids": 12,
+"purchase": 4,
+"units": 6
+},
+"WTD": {
+"calls": 39,
+"called": 35,
+"views": 10,
+"watchlist": 3,
+"bids": 1,
+"purchase": 1,
+"units": 1
+},
+"24M": {
+"calls": 462,
+"called": 162,
+"views": 142,
+"watchlist": 92,
+"bids": 26,
+"purchase": 4,
+"units": 6
+},
+"MTD": {
+"calls": 129,
+"called": 88,
+"views": 34,
+"watchlist": 7,
+"bids": 4,
+"purchase": 2,
+"units": 4
+}
+},
+"Marta Trincao Oliveira": {
+"YTD": {
+"calls": 5086,
+"called": 206,
+"views": 196,
+"watchlist": 186,
+"bids": 161,
+"purchase": 134,
+"units": 1396
+},
+"MTD": {
+"calls": 108,
+"called": 85,
+"views": 77,
+"watchlist": 71,
+"bids": 33,
+"purchase": 24,
+"units": 40
+},
+"24M": {
+"calls": 13668,
+"called": 518,
+"views": 440,
+"watchlist": 379,
+"bids": 316,
+"purchase": 201,
+"units": 4056
+},
+"12M": {
+"calls": 6893,
+"called": 266,
+"views": 247,
+"watchlist": 231,
+"bids": 196,
+"purchase": 152,
+"units": 2087
+}
+},
+"Martim Marques Vicente": {
+"12M": {
+"calls": 4224,
+"called": 313,
+"views": 209,
+"watchlist": 156,
+"bids": 80,
+"purchase": 54,
+"units": 142
+},
+"YTD": {
+"calls": 3567,
+"called": 296,
+"views": 187,
+"watchlist": 139,
+"bids": 74,
+"purchase": 53,
+"units": 134
+},
+"MTD": {
+"calls": 57,
+"called": 47,
+"views": 26,
+"watchlist": 17,
+"bids": 4,
+"purchase": 3,
+"units": 5
+},
+"WTD": {
+"calls": 12,
+"called": 10,
+"views": 5,
+"watchlist": 3,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 4224,
+"called": 313,
+"views": 234,
+"watchlist": 169,
+"bids": 88,
+"purchase": 54,
+"units": 142
+}
+},
+"Pedro Miguel Miranda": {
+"WTD": {
+"calls": 27,
+"called": 27,
+"views": 16,
+"watchlist": 10,
+"bids": 1,
+"purchase": 0,
+"units": 0
+},
+"YTD": {
+"calls": 4631,
+"called": 384,
+"views": 284,
+"watchlist": 218,
+"bids": 115,
+"purchase": 77,
+"units": 217
+},
+"12M": {
+"calls": 5627,
+"called": 389,
+"views": 303,
+"watchlist": 231,
+"bids": 131,
+"purchase": 78,
+"units": 224
+},
+"24M": {
+"calls": 5627,
+"called": 389,
+"views": 326,
+"watchlist": 246,
+"bids": 164,
+"purchase": 78,
+"units": 224
+},
+"MTD": {
+"calls": 120,
+"called": 107,
+"views": 63,
+"watchlist": 38,
+"bids": 4,
+"purchase": 4,
+"units": 5
+}
+},
+"Diogo Rodrigues Gomes": {
+"24M": {
+"calls": 4485,
+"called": 299,
+"views": 286,
+"watchlist": 248,
+"bids": 150,
+"purchase": 81,
+"units": 234
+},
+"12M": {
+"calls": 4485,
+"called": 299,
+"views": 273,
+"watchlist": 212,
+"bids": 98,
+"purchase": 81,
+"units": 234
+},
+"WTD": {
+"calls": 15,
+"called": 15,
+"views": 12,
+"watchlist": 6,
+"bids": 2,
+"purchase": 1,
+"units": 1
+},
+"YTD": {
+"calls": 4159,
+"called": 293,
+"views": 259,
+"watchlist": 187,
+"bids": 91,
+"purchase": 80,
+"units": 217
+},
+"MTD": {
+"calls": 62,
+"called": 47,
+"views": 34,
+"watchlist": 24,
+"bids": 10,
+"purchase": 7,
+"units": 10
+}
+},
+"Bruno Pardal Rodrigues": {
+"12M": {
+"calls": 8059,
+"called": 440,
+"views": 345,
+"watchlist": 252,
+"bids": 149,
+"purchase": 102,
+"units": 503
+},
+"YTD": {
+"calls": 5859,
+"called": 360,
+"views": 270,
+"watchlist": 196,
+"bids": 120,
+"purchase": 87,
+"units": 407
+},
+"MTD": {
+"calls": 187,
+"called": 119,
+"views": 80,
+"watchlist": 52,
+"bids": 14,
+"purchase": 13,
+"units": 19
+},
+"24M": {
+"calls": 11210,
+"called": 635,
+"views": 489,
+"watchlist": 343,
+"bids": 197,
+"purchase": 118,
+"units": 590
+},
+"WTD": {
+"calls": 61,
+"called": 50,
+"views": 34,
+"watchlist": 18,
+"bids": 2,
+"purchase": 5,
+"units": 6
+}
+},
+"Andre Cardoso Silva": {
+"12M": {
+"calls": 1693,
+"called": 242,
+"views": 201,
+"watchlist": 140,
+"bids": 55,
+"purchase": 43,
+"units": 105
+},
+"WTD": {
+"calls": 24,
+"called": 19,
+"views": 14,
+"watchlist": 5,
+"bids": 1,
+"purchase": 2,
+"units": 2
+},
+"MTD": {
+"calls": 95,
+"called": 76,
+"views": 50,
+"watchlist": 22,
+"bids": 9,
+"purchase": 9,
+"units": 11
+},
+"24M": {
+"calls": 1693,
+"called": 242,
+"views": 208,
+"watchlist": 161,
+"bids": 67,
+"purchase": 43,
+"units": 105
+},
+"YTD": {
+"calls": 1693,
+"called": 242,
+"views": 191,
+"watchlist": 128,
+"bids": 46,
+"purchase": 43,
+"units": 105
+}
+},
+"Joao Paulo Bernardo": {
+"12M": {
+"calls": 6580,
+"called": 257,
+"views": 232,
+"watchlist": 219,
+"bids": 184,
+"purchase": 143,
+"units": 1904
+},
+"24M": {
+"calls": 13429,
+"called": 433,
+"views": 384,
+"watchlist": 342,
+"bids": 284,
+"purchase": 203,
+"units": 3426
+},
+"MTD": {
+"calls": 175,
+"called": 85,
+"views": 75,
+"watchlist": 62,
+"bids": 24,
+"purchase": 22,
+"units": 34
+},
+"YTD": {
+"calls": 4172,
+"called": 205,
+"views": 186,
+"watchlist": 172,
+"bids": 149,
+"purchase": 123,
+"units": 1310
+},
+"WTD": {
+"calls": 44,
+"called": 35,
+"views": 33,
+"watchlist": 25,
+"bids": 9,
+"purchase": 5,
+"units": 5
+}
+},
+"Fabio Alexandre Pontes": {
+"YTD": {
+"calls": 4535,
+"called": 324,
+"views": 245,
+"watchlist": 180,
+"bids": 96,
+"purchase": 73,
+"units": 391
+},
+"12M": {
+"calls": 6943,
+"called": 420,
+"views": 331,
+"watchlist": 241,
+"bids": 138,
+"purchase": 88,
+"units": 497
+},
+"24M": {
+"calls": 9517,
+"called": 564,
+"views": 443,
+"watchlist": 311,
+"bids": 177,
+"purchase": 98,
+"units": 573
+},
+"MTD": {
+"calls": 91,
+"called": 78,
+"views": 60,
+"watchlist": 37,
+"bids": 10,
+"purchase": 11,
+"units": 13
+}
+},
+"Francisco Sousa Oliveira": {
+"MTD": {
+"calls": 171,
+"called": 101,
+"views": 59,
+"watchlist": 36,
+"bids": 4,
+"purchase": 5,
+"units": 10
+},
+"WTD": {
+"calls": 50,
+"called": 42,
+"views": 16,
+"watchlist": 7,
+"bids": 0,
+"purchase": 1,
+"units": 2
+},
+"YTD": {
+"calls": 4896,
+"called": 301,
+"views": 232,
+"watchlist": 174,
+"bids": 80,
+"purchase": 61,
+"units": 294
+},
+"24M": {
+"calls": 10455,
+"called": 521,
+"views": 421,
+"watchlist": 307,
+"bids": 152,
+"purchase": 85,
+"units": 404
+},
+"12M": {
+"calls": 7565,
+"called": 385,
+"views": 304,
+"watchlist": 224,
+"bids": 115,
+"purchase": 74,
+"units": 357
+}
+},
+"Diogo Pinto Ferreira": {
+"24M": {
+"calls": 3910,
+"called": 835,
+"views": 730,
+"watchlist": 688,
+"bids": 579,
+"purchase": 128,
+"units": 1050
+},
+"WTD": {
+"calls": 1,
+"called": 1,
+"views": 1,
+"watchlist": 1,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"YTD": {
+"calls": 283,
+"called": 207,
+"views": 205,
+"watchlist": 199,
+"bids": 178,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 489,
+"called": 317,
+"views": 312,
+"watchlist": 304,
+"bids": 276,
+"purchase": 0,
+"units": 0
+},
+"MTD": {
+"calls": 24,
+"called": 24,
+"views": 21,
+"watchlist": 21,
+"bids": 14,
+"purchase": 0,
+"units": 0
+}
+},
+"Leticia Guimaraes Oliveira": {
+"WTD": {
+"calls": 30,
+"called": 27,
+"views": 17,
+"watchlist": 11,
+"bids": 2,
+"purchase": 2,
+"units": 2
+},
+"YTD": {
+"calls": 1625,
+"called": 367,
+"views": 263,
+"watchlist": 171,
+"bids": 80,
+"purchase": 64,
+"units": 296
+},
+"12M": {
+"calls": 2405,
+"called": 400,
+"views": 300,
+"watchlist": 204,
+"bids": 101,
+"purchase": 75,
+"units": 336
+},
+"24M": {
+"calls": 2405,
+"called": 400,
+"views": 340,
+"watchlist": 237,
+"bids": 124,
+"purchase": 75,
+"units": 336
+},
+"MTD": {
+"calls": 87,
+"called": 70,
+"views": 40,
+"watchlist": 26,
+"bids": 6,
+"purchase": 9,
+"units": 13
+}
+},
+"Julio Cesar Damasio": {
+"WTD": {
+"calls": 42,
+"called": 32,
+"views": 25,
+"watchlist": 14,
+"bids": 1,
+"purchase": 2,
+"units": 2
+},
+"YTD": {
+"calls": 4232,
+"called": 310,
+"views": 271,
+"watchlist": 222,
+"bids": 134,
+"purchase": 124,
+"units": 751
+},
+"12M": {
+"calls": 6328,
+"called": 388,
+"views": 339,
+"watchlist": 282,
+"bids": 177,
+"purchase": 143,
+"units": 1087
+},
+"24M": {
+"calls": 13373,
+"called": 766,
+"views": 632,
+"watchlist": 506,
+"bids": 322,
+"purchase": 208,
+"units": 1933
+},
+"MTD": {
+"calls": 93,
+"called": 68,
+"views": 59,
+"watchlist": 46,
+"bids": 9,
+"purchase": 8,
+"units": 8
+}
+},
+"Bernardo Grilo Fernandes": {
+"24M": {
+"calls": 5984,
+"called": 585,
+"views": 449,
+"watchlist": 336,
+"bids": 228,
+"purchase": 85,
+"units": 489
+},
+"YTD": {
+"calls": 2019,
+"called": 248,
+"views": 200,
+"watchlist": 172,
+"bids": 122,
+"purchase": 42,
+"units": 173
+},
+"12M": {
+"calls": 4026,
+"called": 324,
+"views": 262,
+"watchlist": 221,
+"bids": 150,
+"purchase": 65,
+"units": 350
+}
+},
+"Ricardo Almeida Vaz": {
+"24M": {
+"calls": 14471,
+"called": 607,
+"views": 474,
+"watchlist": 423,
+"bids": 342,
+"purchase": 241,
+"units": 5047
+},
+"12M": {
+"calls": 7436,
+"called": 350,
+"views": 285,
+"watchlist": 255,
+"bids": 209,
+"purchase": 165,
+"units": 2627
+},
+"WTD": {
+"calls": 43,
+"called": 33,
+"views": 23,
+"watchlist": 21,
+"bids": 5,
+"purchase": 7,
+"units": 8
+},
+"YTD": {
+"calls": 5034,
+"called": 276,
+"views": 222,
+"watchlist": 206,
+"bids": 172,
+"purchase": 137,
+"units": 1828
+},
+"MTD": {
+"calls": 178,
+"called": 123,
+"views": 95,
+"watchlist": 80,
+"bids": 28,
+"purchase": 27,
+"units": 41
+}
+},
+"Rodrigo Alves Cardoso": {
+"12M": {
+"calls": 2954,
+"called": 375,
+"views": 334,
+"watchlist": 239,
+"bids": 131,
+"purchase": 78,
+"units": 392
+},
+"YTD": {
+"calls": 2130,
+"called": 312,
+"views": 268,
+"watchlist": 196,
+"bids": 105,
+"purchase": 68,
+"units": 324
+},
+"24M": {
+"calls": 3332,
+"called": 414,
+"views": 398,
+"watchlist": 297,
+"bids": 154,
+"purchase": 79,
+"units": 404
+},
+"WTD": {
+"calls": 18,
+"called": 17,
+"views": 6,
+"watchlist": 4,
+"bids": 1,
+"purchase": 0,
+"units": 0
+},
+"MTD": {
+"calls": 87,
+"called": 79,
+"views": 45,
+"watchlist": 26,
+"bids": 9,
+"purchase": 5,
+"units": 5
+}
+},
+"Carlos Alberto Leite": {
+"YTD": {
+"calls": 3431,
+"called": 254,
+"views": 228,
+"watchlist": 188,
+"bids": 104,
+"purchase": 85,
+"units": 216
+},
+"12M": {
+"calls": 5906,
+"called": 428,
+"views": 344,
+"watchlist": 267,
+"bids": 150,
+"purchase": 106,
+"units": 347
+},
+"24M": {
+"calls": 9335,
+"called": 588,
+"views": 458,
+"watchlist": 349,
+"bids": 204,
+"purchase": 118,
+"units": 426
+}
+},
+"Pedro Alexandre Ribeiro": {
+"YTD": {
+"calls": 129,
+"called": 94,
+"views": 93,
+"watchlist": 89,
+"bids": 87,
+"purchase": 0,
+"units": 0
+},
+"MTD": {
+"calls": 2,
+"called": 2,
+"views": 2,
+"watchlist": 2,
+"bids": 2,
+"purchase": 0,
+"units": 0
+},
+"WTD": {
+"calls": 2,
+"called": 2,
+"views": 2,
+"watchlist": 1,
+"bids": 1,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 420,
+"called": 272,
+"views": 269,
+"watchlist": 261,
+"bids": 246,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 165,
+"called": 118,
+"views": 117,
+"watchlist": 113,
+"bids": 109,
+"purchase": 0,
+"units": 0
+}
+},
+"Bruno Moreira Borralho": {
+"24M": {
+"calls": 273,
+"called": 155,
+"views": 154,
+"watchlist": 150,
+"bids": 149,
+"purchase": 0,
+"units": 0
+},
+"WTD": {
+"calls": 1,
+"called": 1,
+"views": 1,
+"watchlist": 1,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"YTD": {
+"calls": 21,
+"called": 17,
+"views": 17,
+"watchlist": 16,
+"bids": 16,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 33,
+"called": 27,
+"views": 27,
+"watchlist": 25,
+"bids": 26,
+"purchase": 0,
+"units": 0
+},
+"MTD": {
+"calls": 2,
+"called": 2,
+"views": 2,
+"watchlist": 2,
+"bids": 2,
+"purchase": 0,
+"units": 0
+}
+},
+"Nuno Brito Vinhas": {
+"WTD": {
+"calls": 38,
+"called": 30,
+"views": 19,
+"watchlist": 12,
+"bids": 2,
+"purchase": 3,
+"units": 3
+},
+"MTD": {
+"calls": 136,
+"called": 100,
+"views": 57,
+"watchlist": 38,
+"bids": 10,
+"purchase": 10,
+"units": 15
+},
+"YTD": {
+"calls": 5096,
+"called": 334,
+"views": 249,
+"watchlist": 193,
+"bids": 116,
+"purchase": 79,
+"units": 423
+},
+"12M": {
+"calls": 7556,
+"called": 423,
+"views": 329,
+"watchlist": 247,
+"bids": 148,
+"purchase": 89,
+"units": 536
+},
+"24M": {
+"calls": 10272,
+"called": 536,
+"views": 434,
+"watchlist": 316,
+"bids": 185,
+"purchase": 99,
+"units": 607
+}
+},
+"Diogo Brito Rodrigues": {
+"12M": {
+"calls": 1254,
+"called": 324,
+"views": 261,
+"watchlist": 159,
+"bids": 63,
+"purchase": 32,
+"units": 44
+},
+"WTD": {
+"calls": 34,
+"called": 28,
+"views": 11,
+"watchlist": 6,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 1254,
+"called": 324,
+"views": 281,
+"watchlist": 199,
+"bids": 74,
+"purchase": 32,
+"units": 44
+},
+"YTD": {
+"calls": 1254,
+"called": 324,
+"views": 235,
+"watchlist": 132,
+"bids": 48,
+"purchase": 32,
+"units": 44
+},
+"MTD": {
+"calls": 131,
+"called": 102,
+"views": 50,
+"watchlist": 23,
+"bids": 7,
+"purchase": 5,
+"units": 5
+}
+},
+"Afonso Coelho Ribeiro": {
+"YTD": {
+"calls": 2393,
+"called": 268,
+"views": 156,
+"watchlist": 102,
+"bids": 49,
+"purchase": 33,
+"units": 95
+},
+"WTD": {
+"calls": 23,
+"called": 21,
+"views": 10,
+"watchlist": 3,
+"bids": 1,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 2555,
+"called": 271,
+"views": 165,
+"watchlist": 111,
+"bids": 56,
+"purchase": 34,
+"units": 97
+},
+"24M": {
+"calls": 2555,
+"called": 271,
+"views": 198,
+"watchlist": 132,
+"bids": 73,
+"purchase": 34,
+"units": 97
+},
+"MTD": {
+"calls": 72,
+"called": 67,
+"views": 36,
+"watchlist": 17,
+"bids": 4,
+"purchase": 3,
+"units": 3
+}
+},
+"Gilberto Micael Castro": {
+"YTD": {
+"calls": 4987,
+"called": 316,
+"views": 247,
+"watchlist": 183,
+"bids": 85,
+"purchase": 73,
+"units": 257
+},
+"WTD": {
+"calls": 40,
+"called": 35,
+"views": 20,
+"watchlist": 15,
+"bids": 2,
+"purchase": 2,
+"units": 2
+},
+"12M": {
+"calls": 7204,
+"called": 400,
+"views": 315,
+"watchlist": 235,
+"bids": 117,
+"purchase": 84,
+"units": 370
+},
+"24M": {
+"calls": 9074,
+"called": 489,
+"views": 384,
+"watchlist": 302,
+"bids": 155,
+"purchase": 88,
+"units": 381
+},
+"MTD": {
+"calls": 40,
+"called": 35,
+"views": 27,
+"watchlist": 21,
+"bids": 5,
+"purchase": 5,
+"units": 6
+}
+},
+"Andre Serra Nunes": {
+"24M": {
+"calls": 8243,
+"called": 611,
+"views": 466,
+"watchlist": 375,
+"bids": 277,
+"purchase": 147,
+"units": 2161
+},
+"12M": {
+"calls": 574,
+"called": 109,
+"views": 100,
+"watchlist": 98,
+"bids": 86,
+"purchase": 39,
+"units": 711
+},
+"MTD": {
+"calls": 4,
+"called": 4,
+"views": 4,
+"watchlist": 4,
+"bids": 2,
+"purchase": 2,
+"units": 4
+},
+"YTD": {
+"calls": 210,
+"called": 16,
+"views": 16,
+"watchlist": 16,
+"bids": 16,
+"purchase": 14,
+"units": 429
+}
+},
+"Ricardo Fonseca Flores": {
+"YTD": {
+"calls": 4662,
+"called": 311,
+"views": 243,
+"watchlist": 173,
+"bids": 88,
+"purchase": 66,
+"units": 224
+},
+"24M": {
+"calls": 10021,
+"called": 494,
+"views": 410,
+"watchlist": 289,
+"bids": 152,
+"purchase": 88,
+"units": 403
+},
+"MTD": {
+"calls": 79,
+"called": 76,
+"views": 39,
+"watchlist": 18,
+"bids": 2,
+"purchase": 3,
+"units": 3
+},
+"12M": {
+"calls": 6690,
+"called": 406,
+"views": 321,
+"watchlist": 225,
+"bids": 106,
+"purchase": 79,
+"units": 321
+}
+},
+"Tiago Samuel Duarte": {
+"12M": {
+"calls": 6257,
+"called": 494,
+"views": 390,
+"watchlist": 307,
+"bids": 166,
+"purchase": 95,
+"units": 562
+},
+"WTD": {
+"calls": 43,
+"called": 35,
+"views": 20,
+"watchlist": 10,
+"bids": 2,
+"purchase": 2,
+"units": 2
+},
+"24M": {
+"calls": 10581,
+"called": 706,
+"views": 561,
+"watchlist": 426,
+"bids": 279,
+"purchase": 146,
+"units": 824
+},
+"MTD": {
+"calls": 161,
+"called": 94,
+"views": 62,
+"watchlist": 41,
+"bids": 13,
+"purchase": 10,
+"units": 16
+},
+"YTD": {
+"calls": 4234,
+"called": 313,
+"views": 242,
+"watchlist": 194,
+"bids": 115,
+"purchase": 90,
+"units": 438
+}
+},
+"Rute Silva Dias": {
+"WTD": {
+"calls": 38,
+"called": 37,
+"views": 25,
+"watchlist": 18,
+"bids": 2,
+"purchase": 2,
+"units": 3
+},
+"MTD": {
+"calls": 158,
+"called": 114,
+"views": 71,
+"watchlist": 44,
+"bids": 11,
+"purchase": 10,
+"units": 14
+},
+"12M": {
+"calls": 7142,
+"called": 420,
+"views": 331,
+"watchlist": 249,
+"bids": 166,
+"purchase": 109,
+"units": 725
+},
+"24M": {
+"calls": 14313,
+"called": 847,
+"views": 642,
+"watchlist": 474,
+"bids": 296,
+"purchase": 159,
+"units": 1134
+},
+"YTD": {
+"calls": 5041,
+"called": 329,
+"views": 246,
+"watchlist": 190,
+"bids": 125,
+"purchase": 91,
+"units": 488
+}
+},
+"Filipe Mota Mendes": {
+"YTD": {
+"calls": 1793,
+"called": 242,
+"views": 146,
+"watchlist": 90,
+"bids": 30,
+"purchase": 25,
+"units": 45
+},
+"MTD": {
+"calls": 125,
+"called": 101,
+"views": 44,
+"watchlist": 13,
+"bids": 3,
+"purchase": 3,
+"units": 7
+},
+"WTD": {
+"calls": 17,
+"called": 17,
+"views": 6,
+"watchlist": 4,
+"bids": 0,
+"purchase": 1,
+"units": 2
+},
+"24M": {
+"calls": 1793,
+"called": 242,
+"views": 180,
+"watchlist": 121,
+"bids": 56,
+"purchase": 25,
+"units": 45
+},
+"12M": {
+"calls": 1793,
+"called": 242,
+"views": 162,
+"watchlist": 103,
+"bids": 35,
+"purchase": 25,
+"units": 45
+}
+},
+"Pedro Luis Lopes": {
+"WTD": {
+"calls": 46,
+"called": 39,
+"views": 12,
+"watchlist": 4,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 2104,
+"called": 231,
+"views": 146,
+"watchlist": 85,
+"bids": 32,
+"purchase": 18,
+"units": 25
+},
+"24M": {
+"calls": 2104,
+"called": 231,
+"views": 165,
+"watchlist": 101,
+"bids": 42,
+"purchase": 18,
+"units": 25
+},
+"YTD": {
+"calls": 2104,
+"called": 231,
+"views": 136,
+"watchlist": 74,
+"bids": 24,
+"purchase": 18,
+"units": 25
+},
+"MTD": {
+"calls": 166,
+"called": 112,
+"views": 33,
+"watchlist": 14,
+"bids": 2,
+"purchase": 2,
+"units": 2
+}
+},
+"Mario Jose da Fonseca": {
+"MTD": {
+"calls": 154,
+"called": 102,
+"views": 88,
+"watchlist": 68,
+"bids": 25,
+"purchase": 21,
+"units": 31
+},
+"12M": {
+"calls": 7074,
+"called": 405,
+"views": 336,
+"watchlist": 289,
+"bids": 212,
+"purchase": 175,
+"units": 2041
+},
+"YTD": {
+"calls": 5035,
+"called": 311,
+"views": 250,
+"watchlist": 213,
+"bids": 163,
+"purchase": 144,
+"units": 1374
+},
+"WTD": {
+"calls": 50,
+"called": 38,
+"views": 26,
+"watchlist": 18,
+"bids": 4,
+"purchase": 2,
+"units": 2
+},
+"24M": {
+"calls": 13503,
+"called": 666,
+"views": 541,
+"watchlist": 447,
+"bids": 315,
+"purchase": 242,
+"units": 3274
+}
+},
+"Duarte Monteiro Ribeiro": {
+"24M": {
+"calls": 1905,
+"called": 238,
+"views": 192,
+"watchlist": 132,
+"bids": 79,
+"purchase": 28,
+"units": 54
+},
+"12M": {
+"calls": 1905,
+"called": 238,
+"views": 176,
+"watchlist": 113,
+"bids": 64,
+"purchase": 28,
+"units": 54
+},
+"YTD": {
+"calls": 1905,
+"called": 238,
+"views": 157,
+"watchlist": 101,
+"bids": 55,
+"purchase": 28,
+"units": 54
+}
+},
+"Andre Lopes Nunes": {
+"12M": {
+"calls": 4700,
+"called": 393,
+"views": 298,
+"watchlist": 207,
+"bids": 111,
+"purchase": 81,
+"units": 236
+},
+"WTD": {
+"calls": 33,
+"called": 31,
+"views": 20,
+"watchlist": 8,
+"bids": 1,
+"purchase": 2,
+"units": 2
+},
+"YTD": {
+"calls": 3640,
+"called": 364,
+"views": 282,
+"watchlist": 192,
+"bids": 100,
+"purchase": 80,
+"units": 217
+},
+"MTD": {
+"calls": 130,
+"called": 100,
+"views": 63,
+"watchlist": 36,
+"bids": 4,
+"purchase": 7,
+"units": 7
+},
+"24M": {
+"calls": 4700,
+"called": 393,
+"views": 322,
+"watchlist": 239,
+"bids": 130,
+"purchase": 81,
+"units": 236
+}
+},
+"Ariana Pinheiro Franca": {
+"MTD": {
+"calls": 164,
+"called": 96,
+"views": 77,
+"watchlist": 57,
+"bids": 15,
+"purchase": 11,
+"units": 14
+},
+"12M": {
+"calls": 6481,
+"called": 239,
+"views": 213,
+"watchlist": 190,
+"bids": 149,
+"purchase": 120,
+"units": 841
+},
+"WTD": {
+"calls": 42,
+"called": 34,
+"views": 29,
+"watchlist": 18,
+"bids": 5,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 9438,
+"called": 661,
+"views": 522,
+"watchlist": 425,
+"bids": 306,
+"purchase": 156,
+"units": 1133
+},
+"YTD": {
+"calls": 4825,
+"called": 212,
+"views": 186,
+"watchlist": 164,
+"bids": 128,
+"purchase": 110,
+"units": 643
+}
+},
+"Pedro Miguel Nunes": {
+"MTD": {
+"calls": 156,
+"called": 104,
+"views": 59,
+"watchlist": 39,
+"bids": 11,
+"purchase": 8,
+"units": 10
+},
+"YTD": {
+"calls": 3873,
+"called": 375,
+"views": 282,
+"watchlist": 189,
+"bids": 86,
+"purchase": 72,
+"units": 161
+},
+"24M": {
+"calls": 4797,
+"called": 392,
+"views": 351,
+"watchlist": 269,
+"bids": 143,
+"purchase": 80,
+"units": 176
+},
+"WTD": {
+"calls": 35,
+"called": 29,
+"views": 12,
+"watchlist": 5,
+"bids": 2,
+"purchase": 2,
+"units": 2
+},
+"12M": {
+"calls": 4797,
+"called": 392,
+"views": 313,
+"watchlist": 223,
+"bids": 111,
+"purchase": 80,
+"units": 176
+}
+},
+"Rodrigo Fernandes Tello": {
+"12M": {
+"calls": 4921,
+"called": 439,
+"views": 321,
+"watchlist": 230,
+"bids": 120,
+"purchase": 67,
+"units": 265
+},
+"YTD": {
+"calls": 3505,
+"called": 344,
+"views": 250,
+"watchlist": 181,
+"bids": 97,
+"purchase": 56,
+"units": 217
+},
+"MTD": {
+"calls": 86,
+"called": 57,
+"views": 38,
+"watchlist": 25,
+"bids": 8,
+"purchase": 7,
+"units": 11
+},
+"24M": {
+"calls": 6085,
+"called": 488,
+"views": 391,
+"watchlist": 285,
+"bids": 156,
+"purchase": 75,
+"units": 292
+},
+"WTD": {
+"calls": 26,
+"called": 20,
+"views": 19,
+"watchlist": 10,
+"bids": 1,
+"purchase": 1,
+"units": 2
+}
+},
+"Lucas Antunes Camargo": {
+"MTD": {
+"calls": 142,
+"called": 105,
+"views": 76,
+"watchlist": 56,
+"bids": 16,
+"purchase": 10,
+"units": 14
+},
+"24M": {
+"calls": 12581,
+"called": 943,
+"views": 727,
+"watchlist": 535,
+"bids": 332,
+"purchase": 175,
+"units": 1399
+},
+"WTD": {
+"calls": 35,
+"called": 33,
+"views": 22,
+"watchlist": 14,
+"bids": 1,
+"purchase": 0,
+"units": 0
+},
+"YTD": {
+"calls": 4771,
+"called": 284,
+"views": 243,
+"watchlist": 195,
+"bids": 122,
+"purchase": 98,
+"units": 570
+},
+"12M": {
+"calls": 6911,
+"called": 435,
+"views": 374,
+"watchlist": 290,
+"bids": 182,
+"purchase": 117,
+"units": 887
+}
+},
+"Irallys Goncalves Fernandes": {
+"24M": {
+"calls": 5039,
+"called": 447,
+"views": 434,
+"watchlist": 330,
+"bids": 164,
+"purchase": 77,
+"units": 202
+},
+"YTD": {
+"calls": 3248,
+"called": 332,
+"views": 292,
+"watchlist": 213,
+"bids": 109,
+"purchase": 67,
+"units": 162
+},
+"MTD": {
+"calls": 94,
+"called": 70,
+"views": 55,
+"watchlist": 29,
+"bids": 5,
+"purchase": 4,
+"units": 5
+},
+"WTD": {
+"calls": 30,
+"called": 24,
+"views": 11,
+"watchlist": 7,
+"bids": 1,
+"purchase": 2,
+"units": 3
+},
+"12M": {
+"calls": 4629,
+"called": 410,
+"views": 364,
+"watchlist": 272,
+"bids": 133,
+"purchase": 77,
+"units": 199
+}
+},
+"Sergio Teixeira Pinto": {
+"24M": {
+"calls": 13664,
+"called": 735,
+"views": 590,
+"watchlist": 449,
+"bids": 298,
+"purchase": 189,
+"units": 1796
+},
+"MTD": {
+"calls": 123,
+"called": 94,
+"views": 74,
+"watchlist": 44,
+"bids": 16,
+"purchase": 13,
+"units": 23
+},
+"12M": {
+"calls": 7418,
+"called": 398,
+"views": 330,
+"watchlist": 269,
+"bids": 173,
+"purchase": 123,
+"units": 1194
+},
+"YTD": {
+"calls": 5006,
+"called": 287,
+"views": 237,
+"watchlist": 189,
+"bids": 131,
+"purchase": 101,
+"units": 864
+}
+},
+"Jose de Sousa Teixeira": {
+"MTD": {
+"calls": 183,
+"called": 124,
+"views": 110,
+"watchlist": 94,
+"bids": 44,
+"purchase": 35,
+"units": 74
+},
+"YTD": {
+"calls": 6517,
+"called": 290,
+"views": 262,
+"watchlist": 248,
+"bids": 234,
+"purchase": 157,
+"units": 2851
+},
+"12M": {
+"calls": 8864,
+"called": 345,
+"views": 313,
+"watchlist": 288,
+"bids": 260,
+"purchase": 171,
+"units": 4097
+},
+"24M": {
+"calls": 17300,
+"called": 620,
+"views": 495,
+"watchlist": 429,
+"bids": 362,
+"purchase": 219,
+"units": 7680
+},
+"WTD": {
+"calls": 53,
+"called": 49,
+"views": 35,
+"watchlist": 23,
+"bids": 8,
+"purchase": 8,
+"units": 10
+}
+},
+"Diogo Pinto Fernandes": {
+"12M": {
+"calls": 153,
+"called": 108,
+"views": 104,
+"watchlist": 104,
+"bids": 101,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 401,
+"called": 262,
+"views": 258,
+"watchlist": 254,
+"bids": 245,
+"purchase": 0,
+"units": 0
+},
+"YTD": {
+"calls": 98,
+"called": 66,
+"views": 64,
+"watchlist": 63,
+"bids": 60,
+"purchase": 0,
+"units": 0
+}
+},
+"Ana Beatriz Alegre": {
+"YTD": {
+"calls": 3354,
+"called": 346,
+"views": 276,
+"watchlist": 195,
+"bids": 113,
+"purchase": 75,
+"units": 314
+},
+"24M": {
+"calls": 8274,
+"called": 619,
+"views": 512,
+"watchlist": 367,
+"bids": 205,
+"purchase": 102,
+"units": 502
+},
+"WTD": {
+"calls": 28,
+"called": 28,
+"views": 12,
+"watchlist": 8,
+"bids": 3,
+"purchase": 2,
+"units": 2
+},
+"12M": {
+"calls": 5411,
+"called": 452,
+"views": 364,
+"watchlist": 275,
+"bids": 147,
+"purchase": 87,
+"units": 432
+},
+"MTD": {
+"calls": 128,
+"called": 105,
+"views": 59,
+"watchlist": 38,
+"bids": 14,
+"purchase": 9,
+"units": 11
+}
+},
+"Goncalo Nogueira Dos Santos": {
+"12M": {
+"calls": 8361,
+"called": 277,
+"views": 257,
+"watchlist": 247,
+"bids": 220,
+"purchase": 170,
+"units": 3919
+},
+"24M": {
+"calls": 16010,
+"called": 506,
+"views": 421,
+"watchlist": 372,
+"bids": 305,
+"purchase": 212,
+"units": 7490
+},
+"YTD": {
+"calls": 6186,
+"called": 235,
+"views": 224,
+"watchlist": 218,
+"bids": 198,
+"purchase": 154,
+"units": 2713
+},
+"MTD": {
+"calls": 204,
+"called": 119,
+"views": 105,
+"watchlist": 90,
+"bids": 47,
+"purchase": 36,
+"units": 70
+},
+"WTD": {
+"calls": 45,
+"called": 41,
+"views": 35,
+"watchlist": 29,
+"bids": 9,
+"purchase": 6,
+"units": 9
+}
+},
+"Marco Aurelio Silva": {
+"YTD": {
+"calls": 5000,
+"called": 269,
+"views": 207,
+"watchlist": 177,
+"bids": 121,
+"purchase": 101,
+"units": 712
+},
+"MTD": {
+"calls": 49,
+"called": 42,
+"views": 40,
+"watchlist": 37,
+"bids": 16,
+"purchase": 17,
+"units": 26
+},
+"12M": {
+"calls": 7358,
+"called": 379,
+"views": 311,
+"watchlist": 250,
+"bids": 166,
+"purchase": 122,
+"units": 1046
+},
+"WTD": {
+"calls": 49,
+"called": 42,
+"views": 37,
+"watchlist": 26,
+"bids": 4,
+"purchase": 3,
+"units": 5
+},
+"24M": {
+"calls": 14459,
+"called": 726,
+"views": 577,
+"watchlist": 435,
+"bids": 280,
+"purchase": 183,
+"units": 1649
+}
+},
+"Rafael Goncalo Martins": {
+"24M": {
+"calls": 15925,
+"called": 622,
+"views": 485,
+"watchlist": 405,
+"bids": 330,
+"purchase": 216,
+"units": 2810
+},
+"YTD": {
+"calls": 5657,
+"called": 251,
+"views": 199,
+"watchlist": 185,
+"bids": 149,
+"purchase": 130,
+"units": 1156
+},
+"WTD": {
+"calls": 50,
+"called": 48,
+"views": 40,
+"watchlist": 27,
+"bids": 4,
+"purchase": 2,
+"units": 2
+},
+"MTD": {
+"calls": 210,
+"called": 122,
+"views": 94,
+"watchlist": 70,
+"bids": 31,
+"purchase": 26,
+"units": 36
+},
+"12M": {
+"calls": 8487,
+"called": 308,
+"views": 250,
+"watchlist": 226,
+"bids": 187,
+"purchase": 148,
+"units": 1616
+}
+},
+"Mario Jorge Cruz": {
+"WTD": {
+"calls": 45,
+"called": 41,
+"views": 25,
+"watchlist": 17,
+"bids": 0,
+"purchase": 1,
+"units": 1
+},
+"24M": {
+"calls": 12543,
+"called": 765,
+"views": 617,
+"watchlist": 483,
+"bids": 337,
+"purchase": 218,
+"units": 1882
+},
+"MTD": {
+"calls": 160,
+"called": 116,
+"views": 93,
+"watchlist": 63,
+"bids": 20,
+"purchase": 17,
+"units": 24
+},
+"YTD": {
+"calls": 4520,
+"called": 300,
+"views": 257,
+"watchlist": 225,
+"bids": 154,
+"purchase": 130,
+"units": 846
+},
+"12M": {
+"calls": 6430,
+"called": 435,
+"views": 373,
+"watchlist": 305,
+"bids": 207,
+"purchase": 151,
+"units": 1196
+}
+},
+"Afonso Miguel Silva": {
+"YTD": {
+"calls": 4915,
+"called": 191,
+"views": 172,
+"watchlist": 156,
+"bids": 115,
+"purchase": 91,
+"units": 624
+},
+"MTD": {
+"calls": 121,
+"called": 66,
+"views": 53,
+"watchlist": 43,
+"bids": 14,
+"purchase": 11,
+"units": 14
+},
+"24M": {
+"calls": 14432,
+"called": 575,
+"views": 496,
+"watchlist": 403,
+"bids": 283,
+"purchase": 177,
+"units": 1595
+},
+"12M": {
+"calls": 7154,
+"called": 250,
+"views": 233,
+"watchlist": 213,
+"bids": 155,
+"purchase": 115,
+"units": 918
+}
+},
+"Beatriz Silvestre Almeida": {
+"WTD": {
+"calls": 33,
+"called": 31,
+"views": 5,
+"watchlist": 2,
+"bids": 0,
+"purchase": 0,
+"units": 0
+},
+"24M": {
+"calls": 782,
+"called": 186,
+"views": 130,
+"watchlist": 66,
+"bids": 13,
+"purchase": 3,
+"units": 4
+},
+"YTD": {
+"calls": 782,
+"called": 186,
+"views": 106,
+"watchlist": 45,
+"bids": 9,
+"purchase": 3,
+"units": 4
+},
+"MTD": {
+"calls": 100,
+"called": 81,
+"views": 20,
+"watchlist": 5,
+"bids": 2,
+"purchase": 0,
+"units": 0
+},
+"12M": {
+"calls": 782,
+"called": 186,
+"views": 117,
+"watchlist": 57,
+"bids": 11,
+"purchase": 3,
+"units": 4
+}
+},
+"Daniel Lima Barros": {
+"WTD": {
+"calls": 21,
+"called": 19,
+"views": 12,
+"watchlist": 4,
+"bids": 1,
+"purchase": 2,
+"units": 2
+},
+"12M": {
+"calls": 6323,
+"called": 433,
+"views": 353,
+"watchlist": 272,
+"bids": 136,
+"purchase": 82,
+"units": 437
+},
+"MTD": {
+"calls": 90,
+"called": 62,
+"views": 41,
+"watchlist": 25,
+"bids": 9,
+"purchase": 7,
+"units": 10
+},
+"24M": {
+"calls": 8982,
+"called": 606,
+"views": 460,
+"watchlist": 361,
+"bids": 221,
+"purchase": 101,
+"units": 538
+},
+"YTD": {
+"calls": 4103,
+"called": 333,
+"views": 276,
+"watchlist": 212,
+"bids": 100,
+"purchase": 71,
+"units": 328
+}
+},
+"Phillippe Prudente Toledo": {
+"24M": {
+"calls": 7444,
+"called": 565,
+"views": 429,
+"watchlist": 349,
+"bids": 245,
+"purchase": 138,
+"units": 932
+}
+}
+}
 }
