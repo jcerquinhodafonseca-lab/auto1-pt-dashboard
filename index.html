@@ -72,6 +72,24 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 .sparkline-wrap{position:relative;height:48px;width:100%}
 .sparkline-wrap canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important}
 
+/* FUNIL SECTION */
+.funil-section{background:#f9f9f9;border-left:4px solid #0066cc;padding:20px;margin:20px 28px;border-radius:4px}
+.funil-container{display:flex;align-items:center;gap:10px;justify-content:space-between;margin:20px 0;overflow-x:auto;padding:10px 0}
+.funil-stage{background:white;border:1px solid #ddd;padding:15px;border-radius:4px;text-align:center;min-width:120px;flex:1}
+.funil-stage-1{background:#0066cc;color:white;border-color:#0066cc}
+.stage-number{font-size:12px;opacity:0.7;margin-bottom:5px}
+.stage-title{font-weight:bold;font-size:13px;margin-bottom:8px}
+.stage-value{font-size:20px;font-weight:bold;margin-bottom:5px}
+.stage-conversion{font-size:12px;color:#0066cc;font-weight:bold}
+.funil-arrow{font-size:20px;color:#0066cc;flex:0.3;text-align:center}
+.funil-overall{text-align:center;font-size:14px;margin-top:15px;padding-top:15px;border-top:1px solid #ddd}
+.funil-drill-down{display:block;margin:15px auto 0;padding:8px 16px;background:#0066cc;color:white;border:none;border-radius:4px;cursor:pointer;font-size:13px}
+.funil-drill-down:hover{background:#0052a3}
+.modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5)}
+.modal-content{background-color:#fff;margin:10% auto;padding:20px;border:1px solid #888;width:90%;max-width:1000px;border-radius:4px;max-height:80vh;overflow-y:auto}
+.close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer}
+.close:hover{color:#000}
+
 /* AM GRID VIEW */
 #am-view{padding:16px 28px 28px;display:none}
 .am-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
@@ -286,6 +304,31 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
       <h3 id="detail-chart-title">EVOLUÇÃO DE VENDAS</h3>
       <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
 
+    <!-- FUNIL DE CONVERSÃO -->
+    <div id="funil-section" class="funil-section">
+      <h2>🔄 Funil de Conversão</h2>
+      <div class="funil-container">
+        <div class="funil-stage funil-stage-1"><div class="stage-number">1</div><div class="stage-title">Chamadas com Sucesso</div><div class="stage-value" id="funil-calls">-</div><div class="stage-duration">≥30 segundos</div></div>
+        <div class="funil-arrow">→</div>
+        <div class="funil-stage"><div class="stage-number">2</div><div class="stage-title">Viram Carros</div><div class="stage-value" id="funil-views">-</div><div class="stage-conversion" id="conv-calls-views">-</div></div>
+        <div class="funil-arrow">→</div>
+        <div class="funil-stage"><div class="stage-number">3</div><div class="stage-title">Watchlist</div><div class="stage-value" id="funil-watchlist">-</div><div class="stage-conversion" id="conv-views-watchlist">-</div></div>
+        <div class="funil-arrow">→</div>
+        <div class="funil-stage"><div class="stage-number">4</div><div class="stage-title">Bids</div><div class="stage-value" id="funil-bids">-</div><div class="stage-conversion" id="conv-watchlist-bids">-</div></div>
+        <div class="funil-arrow">→</div>
+        <div class="funil-stage"><div class="stage-number">5</div><div class="stage-title">Compras</div><div class="stage-value" id="funil-purchase">-</div><div class="stage-conversion" id="conv-bids-purchase">-</div></div>
+      </div>
+      <div class="funil-overall"><strong>Taxa Overall:</strong> <span id="funil-overall-pct">-</span>%</div>
+      <button class="funil-drill-down" onclick="showDrilldownModal()">📊 Ver detalhes por dealer</button>
+    </div>
+    <!-- MODAL DRILL-DOWN -->
+    <div id="drilldown-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="closeDrilldownModal()">&times;</span>
+        <h3>Funil Detalhado - Por Dealer</h3>
+        <div id="drilldown-table-container"><p>Carregando dados...</p></div>
+      </div>
+    </div>
     <div id="clients-section" style="margin-top:20px;display:none;">
       <div style="display:flex;gap:16px;align-items:flex-start;">
         <div style="flex:1;min-width:0;">
@@ -2325,35 +2368,8 @@ function renderTop3Table(id, title, clients, amName, isBest) {
 }
 
 function renderClientList(id, clients, amName) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.innerHTML = `<div class="card" style="max-height:620px;overflow-y:auto;">
-    <div style="position:sticky;top:0;background:var(--card);padding-bottom:8px;z-index:1;">
-      <h4 style="margin:0;font-size:13px;font-weight:700;">Todos os Clientes (${clients.length})</h4>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:4px;">
-        <thead><tr style="opacity:.6;">
-          <th style="text-align:left;padding:4px 4px;font-weight:600;">Cliente</th>
-          <th style="text-align:right;padding:4px 4px;font-weight:600;" title="Último ano">1A</th>
-          <th style="text-align:right;padding:4px 4px;font-weight:600;" title="Últimos 2 anos">2A</th>
-          <th style="text-align:right;padding:4px 4px;font-weight:600;" title="Média/mês">Méd</th>
-          <th style="text-align:right;padding:4px 4px;font-weight:600;" title="Reclamações">⚠</th>
-        </tr></thead>
-      </table>
-    </div>
-    <table style="width:100%;border-collapse:collapse;font-size:11px;">
-      <tbody>
-        ${clients.map(c=>`<tr style="cursor:pointer;border-top:1px solid var(--border);"
-            onclick="showClientDetail('${amName.replace(/'/g,"\'")}','${c.mid}')"
-            onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
-          <td style="padding:5px 4px;font-weight:500;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.name}">${c.name}</td>
-          <td style="padding:5px 4px;text-align:right;">${c.u12}</td>
-          <td style="padding:5px 4px;text-align:right;">${c.u24}</td>
-          <td style="padding:5px 4px;text-align:right;">${c.avgPerMonth.toFixed(1)}</td>
-          <td style="padding:5px 4px;text-align:right;color:${c.complaints>0?'#C62828':'inherit'};font-weight:${c.complaints>0?'700':'normal'}">${c.complaints||''}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </div>`;
+  // Table "Todos os Clientes" removed - replaced by Funil de Conversão
+  return;
 }
 
 function getClientAllAM(merchantId) {
@@ -2554,4 +2570,10 @@ const VIEWS_DATA = {"136590": [75, 13, 3, 6, 0, 44, 70, 184, 155, 226, 329, 154,
   </div>
 </div>
 
+<script>
+async function loadFunilData(){try{const r=await fetch('https://dash.prod.bi.auto1.team/api/queries/138700/results.json');const d=await r.json();const rows=d.query_result.data.rows;if(rows.length>0){const m=rows[0];document.getElementById('funil-calls').textContent=m.total_calls_success||0;document.getElementById('funil-views').textContent=m.unique_dealers_views||0;document.getElementById('funil-watchlist').textContent=m.unique_dealers_watchlist||0;document.getElementById('funil-bids').textContent=m.unique_dealers_bids||0;document.getElementById('funil-purchase').textContent=m.unique_dealers_purchase||0;document.getElementById('conv-calls-views').textContent=(m.conv_calls_to_views_pct||0).toFixed(1)+'%';document.getElementById('conv-views-watchlist').textContent=(m.conv_views_to_watchlist_pct||0).toFixed(1)+'%';document.getElementById('conv-watchlist-bids').textContent=(m.conv_watchlist_to_bids_pct||0).toFixed(1)+'%';document.getElementById('conv-bids-purchase').textContent=(m.conv_bids_to_purchase_pct||0).toFixed(1)+'%';document.getElementById('funil-overall-pct').textContent=(m.conv_overall_pct||0).toFixed(1)}}catch(e){console.error('Erro Funil:',e)}}
+function showDrilldownModal(){document.getElementById('drilldown-modal').style.display='block';fetch('https://dash.prod.bi.auto1.team/api/queries/138684/results.json').then(r=>r.json()).then(d=>{const rows=d.query_result.data.rows.slice(0,100);const html=`<table style="width:100%;border-collapse:collapse;"><tr style="background:#f0f0f0;"><th style="padding:8px;border:1px solid #ddd;">AM</th><th style="padding:8px;border:1px solid #ddd;">Dealer</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Calls</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Views</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">WL</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Bids</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Compras</th></tr>${rows.map(r=>`<tr><td style="padding:8px;border:1px solid #ddd;">${r.am_name}</td><td style="padding:8px;border:1px solid #ddd;">${r.merchant_name}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step1_successful_calls}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step2_dealers_with_views}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step3_dealers_watchlist}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step4_dealers_bids}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${r.step5_dealers_purchase}</td></tr>`).join('')}</table>`;document.getElementById('drilldown-table-container').innerHTML=html}).catch(e=>{document.getElementById('drilldown-table-container').innerHTML=`<p style="color:red;">Erro: ${e.message}</p>`})}
+function closeDrilldownModal(){document.getElementById('drilldown-modal').style.display='none'}
+document.addEventListener('DOMContentLoaded',()=>{loadFunilData()})
+</script>
 </body></html>
