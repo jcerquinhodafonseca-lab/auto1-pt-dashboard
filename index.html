@@ -73,16 +73,25 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 .sparkline-wrap canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important}
 
 /* FUNIL SECTION */
-.funil-section{background:#f9f9f9;border-left:4px solid #0066cc;padding:20px;margin:20px 28px;border-radius:4px}
-.funil-container{display:flex;align-items:center;gap:10px;justify-content:space-between;margin:20px 0;overflow-x:auto;padding:10px 0}
-.funil-stage{background:white;border:1px solid #ddd;padding:15px;border-radius:4px;text-align:center;min-width:120px;flex:1}
-.funil-stage-1{background:#0066cc;color:white;border-color:#0066cc}
-.stage-number{font-size:12px;opacity:0.7;margin-bottom:5px}
-.stage-title{font-weight:bold;font-size:13px;margin-bottom:8px}
-.stage-value{font-size:20px;font-weight:bold;margin-bottom:5px}
-.stage-conversion{font-size:12px;color:#0066cc;font-weight:bold}
-.funil-arrow{font-size:20px;color:#0066cc;flex:0.3;text-align:center}
-.funil-overall{text-align:center;font-size:14px;margin-top:15px;padding-top:15px;border-top:1px solid #ddd}
+.funil-section{background:var(--card,#fff);border:1px solid var(--border,#e5e5e5);border-left:4px solid #0066cc;padding:20px;margin:20px 28px;border-radius:8px}
+.funil-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.funil-title{font-size:16px;font-weight:700;margin:0}
+.funil-context{font-size:12px;color:var(--muted,#666);margin-top:4px;line-height:1.5}
+.funil-overall-badge{background:#0066cc;color:#fff;border-radius:8px;padding:10px 16px;text-align:center;min-width:150px}
+.funil-overall-label{font-size:10px;opacity:.85;letter-spacing:.02em;line-height:1.3}
+.funil-overall-num{font-size:24px;font-weight:800;margin-top:2px}
+.funil-layout{display:flex;gap:20px;margin-top:18px;align-items:stretch;flex-wrap:wrap}
+.funil-chart-wrap{flex:1.2;min-width:280px;height:300px;position:relative}
+.funil-cards{flex:1;min-width:260px;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.fstage{display:flex;align-items:center;gap:12px;background:var(--card,#fff);border:1px solid var(--border,#e5e5e5);border-radius:6px;padding:10px 12px}
+.fstage-dot{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+.fstage-body{flex:1;min-width:0}
+.fstage-name{font-size:12px;font-weight:600;color:var(--dark,#222);display:flex;align-items:center;gap:6px}
+.fstage-sub{font-size:10px;color:var(--muted,#888)}
+.fstage-val{font-size:18px;font-weight:800;text-align:right}
+.fstage-conv{font-size:10px;font-weight:700;color:#0066cc;text-align:right}
+.fstage-est{font-size:9px;font-weight:700;color:#b26a00;background:#fff3e0;border-radius:3px;padding:1px 5px}
+.funil-note{font-size:11px;color:var(--muted,#777);margin-top:14px;padding-top:12px;border-top:1px solid var(--border,#eee);line-height:1.5}
 
 /* AM GRID VIEW */
 #am-view{padding:16px 28px 28px;display:none}
@@ -300,19 +309,23 @@ body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:va
 
     <!-- FUNIL DE CONVERSÃO -->
     <div id="funil-section" class="funil-section">
-      <h2>🔄 Funil de Conversão</h2>
-      <div class="funil-container">
-        <div class="funil-stage funil-stage-1"><div class="stage-number">1</div><div class="stage-title">Chamadas com Sucesso</div><div class="stage-value" id="funil-calls">-</div><div class="stage-duration">≥30 segundos</div></div>
-        <div class="funil-arrow">→</div>
-        <div class="funil-stage"><div class="stage-number">2</div><div class="stage-title">Viram Carros</div><div class="stage-value" id="funil-views">-</div><div class="stage-conversion" id="conv-calls-views">-</div></div>
-        <div class="funil-arrow">→</div>
-        <div class="funil-stage"><div class="stage-number">3</div><div class="stage-title">Watchlist</div><div class="stage-value" id="funil-watchlist">-</div><div class="stage-conversion" id="conv-views-watchlist">-</div></div>
-        <div class="funil-arrow">→</div>
-        <div class="funil-stage"><div class="stage-number">4</div><div class="stage-title">Bids</div><div class="stage-value" id="funil-bids">-</div><div class="stage-conversion" id="conv-watchlist-bids">-</div></div>
-        <div class="funil-arrow">→</div>
-        <div class="funil-stage"><div class="stage-number">5</div><div class="stage-title">Compras</div><div class="stage-value" id="funil-purchase">-</div><div class="stage-conversion" id="conv-bids-purchase">-</div></div>
+      <div class="funil-head">
+        <div>
+          <h2 class="funil-title">🔄 Funil de Conversão</h2>
+          <div class="funil-context" id="funil-context">—</div>
+        </div>
+        <div class="funil-overall-badge">
+          <div class="funil-overall-label">Taxa global (Chamadas → Compras)</div>
+          <div class="funil-overall-num"><span id="funil-overall-pct">—</span>%</div>
+        </div>
       </div>
-      <div class="funil-overall"><strong>Taxa Overall:</strong> <span id="funil-overall-pct">-</span>%</div>
+
+      <div class="funil-layout">
+        <div class="funil-chart-wrap"><canvas id="funil-chart"></canvas></div>
+        <div class="funil-cards" id="funil-cards"></div>
+      </div>
+
+      <div class="funil-note" id="funil-note"></div>
     </div>
     <div id="clients-section" style="margin-top:20px;display:none;">
       <div style="display:flex;gap:16px;align-items:flex-start;">
@@ -1752,6 +1765,9 @@ function renderDetailPeriod() {
     </div>` : '<div></div>'}
   `;
 
+  // Funil de conversão (period-aware)
+  renderFunil(am, currentPeriod, curLabel, cur);
+
   // Chart
   const chartTitle = `EVOLUÇÃO — ${currentPeriod}`;
   document.getElementById('detail-chart-title').textContent = chartTitle;
@@ -2556,7 +2572,154 @@ const VIEWS_DATA = {"136590": [75, 13, 3, 6, 0, 44, 70, 184, 155, 226, 329, 154,
 </div>
 
 <script>
-async function loadFunilData(){try{const r=await fetch('./data-funil.json');const d=await r.json();const m=d.funil_geral;document.getElementById('funil-calls').textContent=m.total_calls_success||0;document.getElementById('funil-views').textContent=m.unique_dealers_views||0;document.getElementById('funil-watchlist').textContent=m.unique_dealers_watchlist||0;document.getElementById('funil-bids').textContent=m.unique_dealers_bids||0;document.getElementById('funil-purchase').textContent=m.unique_dealers_purchase||0;document.getElementById('conv-calls-views').textContent=(m.conv_calls_to_views_pct||0).toFixed(1)+'%';document.getElementById('conv-views-watchlist').textContent=(m.conv_views_to_watchlist_pct||0).toFixed(1)+'%';document.getElementById('conv-watchlist-bids').textContent=(m.conv_watchlist_to_bids_pct||0).toFixed(1)+'%';document.getElementById('conv-bids-purchase').textContent=(m.conv_bids_to_purchase_pct||0).toFixed(1)+'%';document.getElementById('funil-overall-pct').textContent=(m.conv_overall_pct||0).toFixed(1)}catch(e){console.error('Erro Funil:',e)}}
+// ── Funil de Conversão (period-aware) ──────────────────────────────────
+// Forma média de conversão de Portugal (Redash). Serve para estimar os
+// estágios intermédios de engagement a partir das chamadas reais.
+let FUNIL_SHAPE = {
+  total_calls_success: 2847, unique_dealers_views: 1956,
+  unique_dealers_watchlist: 892, unique_dealers_bids: 456,
+  unique_dealers_purchase: 178
+};
+
+async function loadFunilData(){
+  try{
+    const r = await fetch('./data-funil.json');
+    const d = await r.json();
+    if (d && d.funil_geral) FUNIL_SHAPE = d.funil_geral;
+  } catch(e){ console.warn('Funil: a usar forma de conversão por defeito', e); }
+  if (currentAmIdx >= 0 && currentTeamIdx >= 0) renderDetailPeriod();
+}
+
+// Chamadas reais agregadas pelo período (granularidade mensal)
+function periodCalls(am, period){
+  const cm = am.calls_monthly || [];
+  const ym = {};
+  MONTHS.forEach((m,i)=>{ ym[m.slice(0,7)] = cm[i] || 0; });
+  const y = TODAY.getFullYear(), m = TODAY.getMonth();
+  const curYm = `${y}-${String(m+1).padStart(2,'0')}`;
+  if (period === 'WTD'){
+    const dim = new Date(y, m+1, 0).getDate();
+    return Math.round((ym[curYm]||0) * 7 / dim);
+  } else if (period === 'MTD'){
+    return ym[curYm] || 0;
+  } else if (period === 'YTD'){
+    return Object.entries(ym).filter(([k])=>+k.slice(0,4)===y && +k.slice(5,7)<=m+1).reduce((s,[,v])=>s+v,0);
+  } else if (period === '12M'){
+    return cm.slice(-12).reduce((a,b)=>a+(b||0),0);
+  }
+  return cm.reduce((a,b)=>a+(b||0),0); // 24M
+}
+
+const FUNIL_COLORS = ['#0066cc','#2E86DE','#26A69A','#66BB6A','#2E7D32'];
+
+function renderFunil(am, period, curLabel, salesReal){
+  const g = FUNIL_SHAPE;
+  const base = g.total_calls_success || 1;
+  // frações relativas às chamadas (forma média PT — dealers únicos por estágio)
+  const fViews = (g.unique_dealers_views||0)/base;
+  const fWatch = (g.unique_dealers_watchlist||0)/base;
+  const fBids  = (g.unique_dealers_bids||0)/base;
+  const fPurch = (g.unique_dealers_purchase||0)/base;
+
+  const calls = periodCalls(am, period);
+  const views = Math.round(calls * fViews);
+  const watch = Math.round(calls * fWatch);
+  const bids  = Math.round(calls * fBids);
+  const purch = Math.round(calls * fPurch);
+  const unitsReal = salesReal;                 // unidades vendidas (real)
+  const effic = calls > 0 ? (unitsReal/calls) : 0; // un. por chamada (real)
+
+  const stages = [
+    {name:'Chamadas c/ sucesso',  sub:'≥30 seg · dado real',      val:calls, est:false},
+    {name:'Viram carros',         sub:'dealers · estimativa',      val:views, est:true},
+    {name:'Watchlist',            sub:'dealers · estimativa',      val:watch, est:true},
+    {name:'Bids',                 sub:'dealers · estimativa',      val:bids,  est:true},
+    {name:'Dealers que compram',  sub:'dealers · estimativa',      val:purch, est:true},
+  ];
+
+  // Contexto
+  const ctxEl = document.getElementById('funil-context');
+  if (ctxEl) ctxEl.innerHTML = `${am.name} · <strong>${curLabel}</strong> — engagement dos dealers, das chamadas até à compra`;
+
+  // Badge principal: eficiência REAL (varia por período e por AM)
+  const ovEl = document.getElementById('funil-overall-pct');
+  if (ovEl){
+    ovEl.textContent = effic.toFixed(2);
+    const lbl = ovEl.closest('.funil-overall-badge')?.querySelector('.funil-overall-label');
+    if (lbl) lbl.textContent = 'Eficiência real (un. vendidas ÷ chamadas)';
+    const num = ovEl.closest('.funil-overall-num');
+    if (num) num.lastChild.textContent = ' un/ch';
+  }
+
+  // Cards com conversões entre estágios
+  const cardsEl = document.getElementById('funil-cards');
+  if (cardsEl){
+    let html = stages.map((s,i)=>{
+      const prev = i>0 ? stages[i-1].val : null;
+      const conv = (prev && prev>0) ? (s.val/prev*100).toFixed(1)+'%' : '';
+      const convTxt = i>0 ? `<div class="fstage-conv">${conv} do passo anterior</div>` : `<div class="fstage-conv">topo do funil</div>`;
+      return `<div class="fstage">
+        <div class="fstage-dot" style="background:${FUNIL_COLORS[i]}">${i+1}</div>
+        <div class="fstage-body">
+          <div class="fstage-name">${s.name} ${s.est?'<span class="fstage-est">est.</span>':''}</div>
+          <div class="fstage-sub">${s.sub}</div>
+        </div>
+        <div><div class="fstage-val">${fmt(s.val)}</div>${convTxt}</div>
+      </div>`;
+    }).join('');
+    // Resultado real do período (unidades) — destacado
+    html += `<div class="fstage" style="border-color:#2E7D32;background:rgba(46,125,50,0.06)">
+        <div class="fstage-dot" style="background:#1B5E20">★</div>
+        <div class="fstage-body">
+          <div class="fstage-name">Unidades vendidas <span class="fstage-est" style="color:#1B5E20;background:#e8f5e9">real</span></div>
+          <div class="fstage-sub">resultado efetivo do período</div>
+        </div>
+        <div><div class="fstage-val">${fmt(unitsReal)}</div><div class="fstage-conv">${effic.toFixed(2)} un/chamada</div></div>
+      </div>`;
+    cardsEl.innerHTML = html;
+  }
+
+  // Nota
+  const noteEl = document.getElementById('funil-note');
+  if (noteEl) noteEl.innerHTML = `As <strong>Chamadas com sucesso</strong> e as <strong>Unidades vendidas</strong> são valores reais deste AM para o período. Os estágios intermédios (<em>Viram carros → Watchlist → Bids → Dealers que compram</em>) são estimativas de dealers únicos, obtidas aplicando a curva média de conversão de Portugal às chamadas reais — os volumes mudam com o período (WTD / MTD / YTD). Para números reais por estágio precisaríamos de os importar por período do Redash.`;
+
+  // Gráfico de funil horizontal
+  setTimeout(()=>{
+    const wrap = document.querySelector('.funil-chart-wrap');
+    const el = document.getElementById('funil-chart');
+    if (!el || !wrap) return;
+    el.width = wrap.clientWidth; el.height = wrap.clientHeight;
+    kill('funil-chart');
+    const el2 = document.getElementById('funil-chart');
+    el2.width = wrap.clientWidth; el2.height = wrap.clientHeight;
+    CI['funil-chart'] = new Chart(el2.getContext('2d'), {
+      type:'bar',
+      data:{
+        labels: stages.map(s=>s.name),
+        datasets:[{
+          data: stages.map(s=>s.val),
+          backgroundColor: FUNIL_COLORS.map(c=>c+'e6'),
+          borderRadius:4, barPercentage:0.85, categoryPercentage:0.9
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:false, maintainAspectRatio:false, animation:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{
+            label:c=>' '+fmt(c.parsed.x)+(c.dataIndex===0?' chamadas':' dealers (est.)'),
+            afterLabel:c=>{ if(c.dataIndex===0) return ''; const prev=stages[c.dataIndex-1].val; return prev>0?'Conversão: '+(stages[c.dataIndex].val/prev*100).toFixed(1)+'%':''; }
+          }}
+        },
+        scales:{
+          x:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11}}},
+          y:{grid:{display:false}, ticks:{font:{size:11,weight:'600'}}}
+        }
+      }
+    });
+  }, 60);
+}
+
 document.addEventListener('DOMContentLoaded',()=>{loadFunilData()})
 </script>
 </body></html>
