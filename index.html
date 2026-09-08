@@ -2609,7 +2609,7 @@ function funilEmpty(msg){
 
 function renderFunil(am, period, curLabel){
   const ctxEl = document.getElementById('funil-context');
-  if (ctxEl) ctxEl.innerHTML = `${am.name} · <strong>${curLabel}</strong> — dealers contactados que avançam até à compra`;
+  if (ctxEl) ctxEl.innerHTML = `${am.name} · <strong>${curLabel}</strong> — grupos de dealer contactados que avançam até à compra`;
 
   if (!FUNIL_LOADED){ funilEmpty('A carregar dados do funil…'); return; }
   const rec = FUNIL_REAL[am.name] && FUNIL_REAL[am.name][period];
@@ -2620,10 +2620,10 @@ function renderFunil(am, period, curLabel){
 
   const stages = [
     {name:'Dealers contactados', sub:'≥1 chamada com sucesso', val:rec.called},
-    {name:'Viram carros',        sub:'dealers únicos',          val:rec.views},
-    {name:'Watchlist',           sub:'dealers únicos',          val:rec.watchlist},
-    {name:'Bids',                sub:'dealers únicos',          val:rec.bids},
-    {name:'Compraram',           sub:'dealers (contas), não carros', val:rec.purchase},
+    {name:'Viram carros',        sub:'grupos únicos',           val:rec.views},
+    {name:'Watchlist',           sub:'grupos únicos',           val:rec.watchlist},
+    {name:'Bids',                sub:'grupos únicos',           val:rec.bids},
+    {name:'Compraram',           sub:'grupos (dealers), não carros', val:rec.purchase},
   ];
 
   // Conversão global: contactados → compraram (dealers)
@@ -2637,7 +2637,7 @@ function renderFunil(am, period, curLabel){
   const kpis = document.getElementById('funil-kpis');
   if (kpis) kpis.innerHTML = `
     <div class="fkpi"><div class="fkpi-label">Chamadas com sucesso</div><div class="fkpi-val">${fmt(rec.calls)}</div><div class="fkpi-sub">≥30 seg</div></div>
-    <div class="fkpi"><div class="fkpi-label">Dealers que compraram</div><div class="fkpi-val">${fmt(rec.purchase)}</div><div class="fkpi-sub">contas, de ${fmt(rec.called)} contactadas</div></div>
+    <div class="fkpi"><div class="fkpi-label">Grupos que compraram</div><div class="fkpi-val">${fmt(rec.purchase)}</div><div class="fkpi-sub">de ${fmt(rec.called)} grupos contactados</div></div>
     <div class="fkpi"><div class="fkpi-label">Carros vendidos</div><div class="fkpi-val">${fmt(unitsDash)}</div><div class="fkpi-sub">unidades (= vendas do topo)</div></div>
     <div class="fkpi"><div class="fkpi-label">Carros por dealer</div><div class="fkpi-val">${carrosPorDealer.toFixed(1)}</div><div class="fkpi-sub">carros ÷ dealers compradores</div></div>`;
 
@@ -2661,7 +2661,7 @@ function renderFunil(am, period, curLabel){
 
   // Nota
   const noteEl = document.getElementById('funil-note');
-  if (noteEl) noteEl.innerHTML = `<strong>100% dados reais do Redash.</strong> As 5 etapas contam <em>dealers únicos</em> (contas), não carros — por isso <strong>Compraram</strong> (nº de dealers) é diferente de <strong>Carros vendidos</strong> (unidades): um dealer compra vários carros. Coorte = dealers com ≥1 chamada com sucesso deste AM no período; cada etapa conta os dealers dessa coorte que avançaram, recalculado dentro da janela (WTD / MTD / YTD / 12M / 24M).`;
+  if (noteEl) noteEl.innerHTML = `<strong>100% dados reais do Redash, ao nível de grupo de dealer.</strong> As contas <em>centralizadas</em> de um grupo são contadas como <strong>1</strong> (colapsadas por grupo); as <em>descentralizadas</em> e sem grupo contam como contas separadas. As 5 etapas contam <em>grupos únicos</em>, não carros — por isso <strong>Compraram</strong> (nº de grupos) difere de <strong>Carros vendidos</strong> (unidades). Coorte = grupos com ≥1 chamada com sucesso deste AM no período; recalculado dentro da janela (WTD / MTD / YTD / 12M / 24M).`;
 
   // Gráfico de funil horizontal (real)
   setTimeout(()=>{

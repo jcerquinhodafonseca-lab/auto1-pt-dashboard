@@ -23,40 +23,45 @@ periods AS (
   SELECT 'YTD', DATE_TRUNC('year', CURRENT_DATE) UNION ALL
   SELECT '12M', (CURRENT_DATE - INTERVAL '12 months') UNION ALL
   SELECT '24M', (CURRENT_DATE - INTERVAL '24 months')),
+-- gkey = chave de grupo: contas centralizadas (management_type=4500) colapsam no
+-- grupo inteiro (root_id/parent_id); as restantes contam por conta (id).
+mkey AS (SELECT id mid, CASE WHEN management_type=4500 THEN COALESCE(root_id,parent_id,id) ELSE id END gkey
+  FROM wkda_dm_es.merchants WHERE country='PT'),
 calls_raw AS (
-  SELECT a.full_name am_name, fmc.merchant_id mid, fmc.start_datetime_berlin_timezone::date d
+  SELECT a.full_name am_name, k.gkey, fmc.start_datetime_berlin_timezone::date d
   FROM wkda_dm_es.fact_merchant_calls fmc JOIN am_pt a ON a.id=fmc.calling_agent_id
+  JOIN mkey k ON k.mid=fmc.merchant_id
   WHERE fmc.is_successful_call=true AND fmc.start_datetime_berlin_timezone >= CURRENT_DATE - INTERVAL '24 months'),
-v_last AS (SELECT merchant_id mid, MAX(created_at::date) md FROM wkda_dm_es.car_views
-  WHERE created_at >= CURRENT_DATE - INTERVAL '24 months' GROUP BY merchant_id),
-w_last AS (SELECT mu.merchant_id mid, MAX(mwc.created_on::date) md FROM wkda_dm_es.mp_watched_cars mwc
-  JOIN wkda_dm_es.mp_users mu ON mu.user_id=mwc.mp_user_id
-  WHERE mwc.created_on >= CURRENT_DATE - INTERVAL '24 months' GROUP BY mu.merchant_id),
-b_last AS (SELECT mu.merchant_id mid, MAX(mlo.created_datetime::date) md FROM wkda_dm_es.mp_live_market_offers mlo
-  JOIN wkda_dm_es.mp_users mu ON mu.user_id=mlo.user_id
-  WHERE mlo.created_datetime >= CURRENT_DATE - INTERVAL '24 months' GROUP BY mu.merchant_id),
-p_raw AS (SELECT a.full_name am_name, cs.buyer_id mid, cs.b2b_deal_datetime::date d
+v_last AS (SELECT k.gkey, MAX(cv.created_at::date) md FROM wkda_dm_es.car_views cv
+  JOIN mkey k ON k.mid=cv.merchant_id WHERE cv.created_at >= CURRENT_DATE - INTERVAL '24 months' GROUP BY k.gkey),
+w_last AS (SELECT k.gkey, MAX(mwc.created_on::date) md FROM wkda_dm_es.mp_watched_cars mwc
+  JOIN wkda_dm_es.mp_users mu ON mu.user_id=mwc.mp_user_id JOIN mkey k ON k.mid=mu.merchant_id
+  WHERE mwc.created_on >= CURRENT_DATE - INTERVAL '24 months' GROUP BY k.gkey),
+b_last AS (SELECT k.gkey, MAX(mlo.created_datetime::date) md FROM wkda_dm_es.mp_live_market_offers mlo
+  JOIN wkda_dm_es.mp_users mu ON mu.user_id=mlo.user_id JOIN mkey k ON k.mid=mu.merchant_id
+  WHERE mlo.created_datetime >= CURRENT_DATE - INTERVAL '24 months' GROUP BY k.gkey),
+p_raw AS (SELECT a.full_name am_name, k.gkey, cs.b2b_deal_datetime::date d
   FROM wkda_dm_es.car_sales cs JOIN wkda_dm_es.car_leads cl ON cl.id=cs.id
-  JOIN am_pt a ON a.id=cs.assigned_agent_id
+  JOIN am_pt a ON a.id=cs.assigned_agent_id JOIN mkey k ON k.mid=cs.buyer_id
   WHERE cl.status_id IN (114,14) AND cs.b2b_deal_datetime >= CURRENT_DATE - INTERVAL '24 months'),
-cap AS (SELECT p.period, c.am_name, c.mid, COUNT(*) calls_cnt
-  FROM calls_raw c JOIN periods p ON c.d >= p.s GROUP BY p.period, c.am_name, c.mid),
-pap AS (SELECT p.period, pr.am_name, pr.mid, COUNT(*) units
-  FROM p_raw pr JOIN periods p ON pr.d >= p.s GROUP BY p.period, pr.am_name, pr.mid)
+cap AS (SELECT p.period, c.am_name, c.gkey, COUNT(*) calls_cnt
+  FROM calls_raw c JOIN periods p ON c.d >= p.s GROUP BY p.period, c.am_name, c.gkey),
+pap AS (SELECT p.period, pr.am_name, pr.gkey, COUNT(*) units
+  FROM p_raw pr JOIN periods p ON pr.d >= p.s GROUP BY p.period, pr.am_name, pr.gkey)
 SELECT cap.period, cap.am_name,
  SUM(cap.calls_cnt) calls_success,
- COUNT(DISTINCT cap.mid) dealers_called,
- COUNT(DISTINCT CASE WHEN vl.md >= pr.s THEN cap.mid END) dealers_views,
- COUNT(DISTINCT CASE WHEN wl.md >= pr.s THEN cap.mid END) dealers_watchlist,
- COUNT(DISTINCT CASE WHEN bl.md >= pr.s THEN cap.mid END) dealers_bids,
- COUNT(DISTINCT CASE WHEN pap.mid IS NOT NULL THEN cap.mid END) dealers_purchase,
+ COUNT(DISTINCT cap.gkey) dealers_called,
+ COUNT(DISTINCT CASE WHEN vl.md >= pr.s THEN cap.gkey END) dealers_views,
+ COUNT(DISTINCT CASE WHEN wl.md >= pr.s THEN cap.gkey END) dealers_watchlist,
+ COUNT(DISTINCT CASE WHEN bl.md >= pr.s THEN cap.gkey END) dealers_bids,
+ COUNT(DISTINCT CASE WHEN pap.gkey IS NOT NULL THEN cap.gkey END) dealers_purchase,
  COALESCE(SUM(pap.units),0) units_sold
 FROM cap
 JOIN periods pr ON pr.period=cap.period
-LEFT JOIN v_last vl ON vl.mid=cap.mid
-LEFT JOIN w_last wl ON wl.mid=cap.mid
-LEFT JOIN b_last bl ON bl.mid=cap.mid
-LEFT JOIN pap ON pap.period=cap.period AND pap.am_name=cap.am_name AND pap.mid=cap.mid
+LEFT JOIN v_last vl ON vl.gkey=cap.gkey
+LEFT JOIN w_last wl ON wl.gkey=cap.gkey
+LEFT JOIN b_last bl ON bl.gkey=cap.gkey
+LEFT JOIN pap ON pap.period=cap.period AND pap.am_name=cap.am_name AND pap.gkey=cap.gkey
 GROUP BY cap.period, cap.am_name
 SQLEOF
 
